@@ -159,7 +159,7 @@ Please ensure all code examples:
 
 ## Acknowledgments
 
-Built using [Specify](https://github.com/anthropics/specify) - Spec-Driven Development workflow.
+Built using [Specify]((https://github.com/panaversity/spec-kit-plus)] - Spec-Driven Development workflow.
 
 Educational content follows constitution-driven quality standards:
 - ✅ All code examples tested in simulation
