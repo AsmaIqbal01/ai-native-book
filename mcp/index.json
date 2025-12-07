@@ -1,0 +1,104 @@
+{
+  "book": {
+    "title": "AI-Native Robotics Textbook",
+    "version": "0.1.0",
+    "author": "Asma Iqbal",
+    "lastUpdated": "2025-12-07",
+    "description": "An educational textbook teaching robotics fundamentals with a focus on AI integration, humanoid robots, and modern simulation tools."
+  },
+  "mcpVersion": "1.0",
+  "purpose": "Model Context Protocol structure for organizing AI-Native Robotics textbook content",
+  "chapters": [
+    {
+      "chapter": 1,
+      "title": "Introduction to Physical AI",
+      "file": "chapter1.json",
+      "status": "specification_complete",
+      "isModule": false
+    },
+    {
+      "chapter": 2,
+      "module": 1,
+      "title": "The Robotic Nervous System (ROS 2)",
+      "file": "chapter2.json",
+      "status": "implementation_in_progress",
+      "isModule": true
+    },
+    {
+      "chapter": 3,
+      "module": 2,
+      "title": "The Digital Twin (Gazebo & Unity)",
+      "file": "chapter3.json",
+      "status": "implementation_in_progress",
+      "isModule": true
+    },
+    {
+      "chapter": 4,
+      "module": 3,
+      "title": "The AI-Robot Brain (NVIDIA Isaac™)",
+      "file": "chapter4.json",
+      "status": "specification_complete",
+      "isModule": true
+    },
+    {
+      "chapter": 5,
+      "module": 4,
+      "title": "Vision-Language-Action (VLA)",
+      "file": "chapter5.json",
+      "status": "specification_complete",
+      "isModule": true
+    }
+  ],
+  "curriculum": {
+    "learningPath": [
+      "Physical AI foundations",
+      "ROS 2 architecture and development",
+      "Simulation and digital twins",
+      "Advanced AI perception and navigation",
+      "Multimodal AI integration"
+    ],
+    "totalEstimatedTime": {
+      "reading": "7.5 hours",
+      "handsOn": "18-23 hours",
+      "total": "25.5-30.5 hours"
+    }
+  },
+  "technicalStack": {
+    "os": "Ubuntu 22.04 LTS",
+    "ros2": "Humble Hawksbill or Iron Irwini",
+    "simulators": [
+      "Gazebo Classic 11.x",
+      "NVIDIA Isaac Sim",
+      "Unity (preview)"
+    ],
+    "languages": [
+      "Python 3.8+",
+      "XML/URDF",
+      "YAML"
+    ],
+    "aiTools": [
+      "OpenAI GPT-4",
+      "Anthropic Claude",
+      "Computer Vision models",
+      "Isaac ROS packages"
+    ]
+  },
+  "projectStructure": {
+    "specs": "specs/",
+    "examples": "examples/",
+    "docs": "docs/modules/",
+    "assets": "assets/diagrams/",
+    "history": "history/prompts/",
+    "mcp": "mcp/"
+  },
+  "usage": {
+    "description": "This MCP structure provides organized access to textbook content for AI assistants and tooling",
+    "accessing": "Load individual chapter JSON files to get structured information about topics, examples, and exercises",
+    "integration": "Can be used with Claude MCP, custom tooling, or documentation generators"
+  },
+  "metadata": {
+    "repository": "https://github.com/AsmaIqbal01/ai-native-book.git",
+    "license": "TBD",
+    "methodology": "Spec-Driven Development (SDD) using Specify framework"
+  }
+}

@@ -1,0 +1,56 @@
+---
+id: troubleshooting
+title: Troubleshooting
+---
+
+# Troubleshooting
+
+<!-- Add theory, examples, diagrams here -->
+
+## Overview
+
+Common issues and solutions for the AI-Native Robotics textbook.
+
+## ROS 2 Issues
+
+### Issue: `ros2: command not found`
+
+**Solution**: Source the ROS 2 setup file:
+```bash
+source /opt/ros/humble/setup.bash
+```
+
+### Issue: `No module named 'rclpy'`
+
+**Solution**: Install ROS 2 Python packages:
+```bash
+sudo apt install python3-rclpy
+```
+
+## Gazebo Issues
+
+### Issue: Gazebo GUI not launching
+
+**Solution**: Check X server configuration (WSL2) or GPU drivers.
+
+### Issue: Robot falls through floor
+
+**Solution**: Verify collision geometries in URDF and check physics timestep.
+
+## Isaac Sim Issues
+
+### Issue: GPU not detected
+
+**Solution**: Verify NVIDIA drivers and CUDA installation.
+
+## General Tips
+
+- Always check ROS 2 and Gazebo versions match the textbook requirements
+- Use `ros2 doctor` to diagnose ROS 2 issues
+- Check log files in `~/.ros/log/` for detailed error messages
+
+## Getting Help
+
+- [ROS Answers](https://answers.ros.org/)
+- [Gazebo Community](https://community.gazebosim.org/)
+- [GitHub Issues](https://github.com/your-repo/ai-native-robotics/issues)

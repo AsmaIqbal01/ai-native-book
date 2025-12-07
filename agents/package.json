@@ -1,0 +1,26 @@
+{
+  "name": "ai-native-book-agents",
+  "version": "1.0.0",
+  "description": "Multi-agent pipeline for autonomous textbook creation using MCP servers",
+  "main": "orchestrator.js",
+  "scripts": {
+    "start": "node orchestrator.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "agents",
+    "ai",
+    "textbook",
+    "automation"
+  ],
+  "author": "Asma Iqbal",
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

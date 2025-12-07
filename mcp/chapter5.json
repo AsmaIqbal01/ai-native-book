@@ -1,0 +1,221 @@
+{
+  "chapter": 5,
+  "title": "Vision-Language-Action (VLA)",
+  "slug": "005-vla-module",
+  "module": 4,
+  "status": "specification_complete",
+  "metadata": {
+    "version": "0.1.0",
+    "lastUpdated": "2025-12-07",
+    "author": "Asma Iqbal",
+    "estimatedReadingTime": "120 minutes",
+    "handsOnTime": "6-8 hours"
+  },
+  "learningObjectives": [
+    "Understand VLA (Vision-Language-Action) system architecture",
+    "Build robot perception pipelines for multimodal input",
+    "Implement LLM-based high-level task planning",
+    "Apply safety filters to LLM outputs",
+    "Create complete VLA scenarios in simulation"
+  ],
+  "topics": [
+    {
+      "id": "5.1",
+      "title": "Introduction to Vision-Language-Action Systems",
+      "contentPath": "docs/modules/vla-systems.md#intro",
+      "concepts": [
+        "What is VLA and why it matters",
+        "Vision → Language → Action pipeline",
+        "Multimodal AI for robotics",
+        "End-to-end vs modular VLA",
+        "State-of-the-art VLA models"
+      ],
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "5.2",
+      "title": "Robot Perception Pipeline",
+      "contentPath": "docs/modules/vla-systems.md#perception",
+      "concepts": [
+        "RGB image processing",
+        "Depth estimation and point clouds",
+        "Semantic segmentation",
+        "Object detection and tracking",
+        "Scene understanding"
+      ],
+      "modalities": [
+        "RGB cameras",
+        "Depth sensors",
+        "LiDAR",
+        "Proprioceptive sensors (joint states, IMU)"
+      ],
+      "examples": [
+        "examples/005-vla-module/perception/image_preprocessing.py",
+        "examples/005-vla-module/perception/depth_to_pointcloud.py",
+        "examples/005-vla-module/perception/semantic_segmentation.py",
+        "examples/005-vla-module/perception/object_detector.py"
+      ],
+      "exercises": [
+        "Process camera images from Gazebo",
+        "Convert depth to 3D point cloud",
+        "Detect and segment objects in scene",
+        "Build scene representation for LLM"
+      ]
+    },
+    {
+      "id": "5.3",
+      "title": "LLM-Based Task Planning",
+      "contentPath": "docs/modules/vla-systems.md#llm-planning",
+      "concepts": [
+        "Prompting strategies for robotics",
+        "Scene description generation",
+        "Task decomposition with LLMs",
+        "Action space definition",
+        "Chain-of-thought reasoning"
+      ],
+      "llmApis": [
+        "OpenAI GPT-4 Vision",
+        "Anthropic Claude",
+        "Google Gemini",
+        "Open-source alternatives (LLaMA, Mistral)"
+      ],
+      "examples": [
+        "examples/005-vla-module/llm/scene_description.py",
+        "examples/005-vla-module/llm/task_planner.py",
+        "examples/005-vla-module/llm/prompt_templates.py",
+        "examples/005-vla-module/llm/action_parser.py"
+      ],
+      "exercises": [
+        "Generate scene descriptions from images",
+        "Prompt LLM for high-level task plans",
+        "Parse LLM output to robot actions",
+        "Implement multi-step task execution"
+      ]
+    },
+    {
+      "id": "5.4",
+      "title": "Safety Filters and Validation",
+      "contentPath": "docs/modules/vla-systems.md#safety",
+      "concepts": [
+        "Why safety filters are critical",
+        "Action space constraints",
+        "Collision checking",
+        "Joint limit validation",
+        "Forbidden regions and safety zones",
+        "Human-in-the-loop verification"
+      ],
+      "examples": [
+        "examples/005-vla-module/safety/action_validator.py",
+        "examples/005-vla-module/safety/collision_checker.py",
+        "examples/005-vla-module/safety/safety_monitor.py"
+      ],
+      "exercises": [
+        "Implement action space validator",
+        "Add collision detection to planner",
+        "Create emergency stop mechanism",
+        "Test safety with invalid commands"
+      ]
+    },
+    {
+      "id": "5.5",
+      "title": "Complete VLA Scenarios",
+      "contentPath": "docs/modules/vla-systems.md#scenarios",
+      "scenarios": [
+        {
+          "name": "Object Pick and Place",
+          "description": "Robot identifies objects, plans grasp, and places in target location",
+          "complexity": "Medium"
+        },
+        {
+          "name": "Navigation to Object",
+          "description": "Robot navigates to user-specified object using natural language",
+          "complexity": "Medium"
+        },
+        {
+          "name": "Multi-Step Task Execution",
+          "description": "Robot executes complex tasks like 'clean the table' with multiple sub-actions",
+          "complexity": "High"
+        },
+        {
+          "name": "Interactive Learning",
+          "description": "Robot learns from human demonstrations and natural language feedback",
+          "complexity": "High"
+        }
+      ],
+      "examples": [
+        "examples/005-vla-module/scenarios/pick_and_place/",
+        "examples/005-vla-module/scenarios/navigation/",
+        "examples/005-vla-module/scenarios/multi_step/",
+        "examples/005-vla-module/scenarios/interactive_learning/"
+      ],
+      "exercises": [
+        "Implement pick-and-place with VLA",
+        "Build navigation system with voice commands",
+        "Create multi-step task executor",
+        "Add human feedback loop"
+      ]
+    },
+    {
+      "id": "5.6",
+      "title": "Integration and Deployment",
+      "contentPath": "docs/modules/vla-systems.md#integration",
+      "concepts": [
+        "System integration architecture",
+        "ROS 2 nodes for VLA pipeline",
+        "Real-time performance considerations",
+        "Scaling to real robots",
+        "Future directions in VLA research"
+      ],
+      "examples": [
+        "examples/005-vla-module/integration/vla_system.py",
+        "examples/005-vla-module/integration/launch/vla_full_system.launch.py"
+      ],
+      "exercises": [
+        "Integrate all VLA components",
+        "Launch complete VLA system in Gazebo",
+        "Test end-to-end VLA pipeline",
+        "Benchmark system performance"
+      ]
+    }
+  ],
+  "prerequisites": [
+    "Chapter 4: The AI-Robot Brain (NVIDIA Isaac)",
+    "Python experience with ML/AI libraries",
+    "API access to LLM provider (OpenAI, Anthropic, etc.)",
+    "Understanding of computer vision",
+    "ROS 2 and Gazebo proficiency"
+  ],
+  "technicalRequirements": {
+    "os": "Ubuntu 22.04 LTS",
+    "ros2Version": "Humble Hawksbill",
+    "pythonVersion": "3.8+",
+    "gpu": "NVIDIA GPU recommended for vision processing",
+    "dependencies": [
+      "opencv-python",
+      "numpy",
+      "torch / tensorflow",
+      "transformers",
+      "openai / anthropic SDK",
+      "sensor_msgs",
+      "cv_bridge"
+    ],
+    "apiKeys": [
+      "OpenAI API key (or alternative LLM provider)",
+      "Vision model API access"
+    ]
+  },
+  "previousChapter": "chapter4.json",
+  "nextChapter": null,
+  "resources": {
+    "specPath": "specs/005-vla-module/spec.md",
+    "examplesPath": "examples/005-vla-module/",
+    "assetsPath": "assets/diagrams/vla-module/",
+    "setupGuide": "SETUP.md#vla-setup",
+    "externalLinks": {
+      "openai": "https://platform.openai.com/docs",
+      "anthropic": "https://docs.anthropic.com/",
+      "vla_research": "https://arxiv.org/abs/2307.15818"
+    }
+  }
+}
