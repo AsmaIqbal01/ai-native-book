@@ -1,0 +1,1 @@
+ASCII diagram for Gazebo world structure will be added here.

@@ -59,5 +59,37 @@ All checklist items passed validation. The specification is complete, unambiguou
 - Thorough Key Entities section defining all core ROS 2 concepts
 
 **Recommended Next Steps**:
+- ~~Alternatively, use `/sp.clarify` if additional requirements refinement is desired~~ **COMPLETED 2025-12-07**
 - Proceed to `/sp.plan` to design the module structure, content architecture, and code example workflow
-- Alternatively, use `/sp.clarify` if additional requirements refinement is desired (though not necessary given current completeness)
+
+## Clarifications Resolved (2025-12-07)
+
+### Process Summary
+The specification was refined through `/sp.clarify` to resolve ambiguities in:
+1. Code example quantity and structure
+2. Simulation environment and robot model choice
+3. Advanced content placement and depth
+
+### Decisions Made
+
+**Code Example Structure**:
+- Decision: 1-2 complete examples per major topic (Nodes, Services, Actions, Agent Bridge, URDF)
+- Rationale: Maintains readability while providing working reference implementations
+- Impact: Added FR-021, FR-023; companion repository requirement
+
+**Simulation Environment**:
+- Decision: Gazebo Classic (version 11) with custom simplified humanoid (5-7 DOF)
+- Rationale: Stable platform, beginner-friendly robot complexity, enables URDF teaching
+- Impact: Updated FR-008, FR-009, FR-010; specific dependency requirements
+
+**Advanced Topics**:
+- Decision: Include in "Further Exploration" appendix rather than separate chapters
+- Rationale: Keeps all ROS 2 content consolidated; clear beginner/advanced separation
+- Impact: Added FR-022; reorganized Out of Scope section
+
+### Updated Requirements Count
+- Original: 20 functional requirements
+- After clarification: 23 functional requirements (added FR-021, FR-022, FR-023)
+
+### Specification Status
+**READY FOR PLANNING** ✅ - All ambiguities resolved, requirements specific and testable
