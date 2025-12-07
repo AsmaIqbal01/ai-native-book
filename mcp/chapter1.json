@@ -1,0 +1,68 @@
+{
+  "chapter": 1,
+  "title": "Introduction to Physical AI",
+  "slug": "001-physical-ai-intro",
+  "status": "specification_complete",
+  "metadata": {
+    "version": "0.1.0",
+    "lastUpdated": "2025-12-07",
+    "author": "Asma Iqbal",
+    "estimatedReadingTime": "45 minutes"
+  },
+  "learningObjectives": [
+    "Understand what Physical AI and embodied intelligence means",
+    "Distinguish between digital AI and robots that understand physics",
+    "Identify key humanoid robots in the current landscape",
+    "Recognize sensor systems used in humanoid robots"
+  ],
+  "topics": [
+    {
+      "id": "1.1",
+      "title": "What is Physical AI and Embodied Intelligence",
+      "contentPath": "docs/modules/chapter1/01-physical-ai.md",
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "1.2",
+      "title": "From Digital AI to Physical Robots",
+      "contentPath": "docs/modules/chapter1/02-digital-to-physical.md",
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "1.3",
+      "title": "Humanoid Robotics Landscape",
+      "contentPath": "docs/modules/chapter1/03-humanoid-landscape.md",
+      "keyRobots": [
+        "Tesla Optimus",
+        "Figure 01",
+        "Unitree H1",
+        "Agility Digit"
+      ],
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "1.4",
+      "title": "Sensor Systems in Humanoid Robots",
+      "contentPath": "docs/modules/chapter1/04-sensor-systems.md",
+      "sensorTypes": [
+        "LiDAR",
+        "RGB Cameras",
+        "Depth Cameras",
+        "IMU (Inertial Measurement Unit)",
+        "Force/Torque Sensors"
+      ],
+      "examples": [],
+      "exercises": []
+    }
+  ],
+  "prerequisites": [],
+  "nextChapter": "chapter2.json",
+  "resources": {
+    "specPath": "specs/001-physical-ai-intro/spec.md",
+    "examplesPath": null,
+    "assetsPath": "assets/diagrams/chapter1/"
+  }
+}

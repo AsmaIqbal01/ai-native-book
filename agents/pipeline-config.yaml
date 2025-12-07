@@ -1,0 +1,240 @@
+version: 1.1
+
+project:
+  name: "AI-Native Book"
+  goal: >
+    Build a fully autonomous textbook creation pipeline that uses:
+      - Context7 MCP server (content generation + editing)
+      - GitHub MCP server (commit, push, PR, file management)
+    Agents collaborate to generate, organize, validate, publish, and produce
+    multi-modal outputs (audio, translated versions) of textbook chapters.
+
+mcp_servers:
+  context7:
+    type: http
+    url: "https://mcp.context7.com/mcp"
+
+  github-mcp:
+    type: stdio
+    command: npx
+    args: ["-y", "@iflow-mcp/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "env:GITHUB_PAT"
+
+shared_resources:
+  repo_path: "./"
+  docs_path: "./docs/"
+  mcp_path: "./mcp/"
+  agents_path: "./agents/"
+  audio_path: "./audio/"
+  translations_path: "./translations/"
+
+agents:
+
+  content_planner:
+    description: >
+      Creates chapter outlines, learning objectives, and section breakdowns
+      for the AI-Native textbook.
+    uses:
+      - context7
+    inputs:
+      - topic
+      - textbook_structure
+    outputs:
+      - chapter_plan
+      - update_to_docs_folder
+
+  chapter_writer:
+    description: >
+      Writes full chapter content (theory, examples, exercises)
+      based on the planner output.
+    uses:
+      - context7
+    inputs:
+      - chapter_plan
+    outputs:
+      - chapter_draft_file (markdown)
+
+  chapter_refiner:
+    description: >
+      Improves drafts for clarity, correctness, formatting, diagrams, and flow.
+    uses:
+      - context7
+    inputs:
+      - chapter_draft_file
+    outputs:
+      - final_chapter_file
+
+  citation_checker:
+    description: >
+      Validates citations, ensures academic correctness, adds missing references.
+    uses:
+      - context7
+    inputs:
+      - final_chapter_file
+    outputs:
+      - validated_chapter_file
+
+  mcp_formatter:
+    description: >
+      Converts refined chapter into JSON spec files inside /mcp folder
+      for external MCP tools to consume.
+    uses:
+      - context7
+    inputs:
+      - validated_chapter_file
+    outputs:
+      - mcp_json_file
+
+  text_to_voice_agent:
+    description: >
+      Converts final chapter MDX or text files into audio (mp3/wav) files.
+      Supports multiple voices and formats.
+    uses:
+      - context7
+    inputs:
+      - final_chapter_file
+      - voice_options: optional
+    outputs:
+      - audio_file_path
+
+  translator_agent:
+    description: >
+      Translates chapters or sections into other languages (e.g., Urdu, English)
+      while maintaining formatting and context.
+    uses:
+      - context7
+    inputs:
+      - final_chapter_file
+      - target_language
+    outputs:
+      - translated_file_path
+
+  github_publisher:
+    description: >
+      Pushes chapters, JSON files, audio, translations, and updates
+      to GitHub using the GitHub MCP server.
+    uses:
+      - github-mcp
+    inputs:
+      - any_file_path
+    actions:
+      - commit_file
+      - push_changes
+      - create_pull_request
+
+  orchestrator:
+    description: >
+      Main conductor agent that takes a topic and produces the complete
+      chapter from planning to GitHub publication. Coordinates all other agents
+      in the pipeline and handles error recovery, retries, and workflow state.
+    uses:
+      - context7
+      - github-mcp
+    inputs:
+      - topic
+      - target_language: optional
+      - audio_enabled: optional
+    workflow:
+      - content_planner
+      - chapter_writer
+      - chapter_refiner
+      - citation_checker
+      - mcp_formatter
+      - text_to_voice_agent (conditional)
+      - translator_agent (conditional)
+      - github_publisher
+    outputs:
+      - workflow_status
+      - published_chapter_url
+      - audio_files (conditional)
+      - translated_files (conditional)
+
+workflows:
+
+  full_chapter_pipeline:
+    description: "Complete pipeline from topic to published chapter"
+    steps:
+      - name: "Plan Chapter"
+        agent: content_planner
+        retry: 2
+
+      - name: "Write Chapter"
+        agent: chapter_writer
+        retry: 1
+
+      - name: "Refine Chapter"
+        agent: chapter_refiner
+        retry: 1
+
+      - name: "Validate Citations"
+        agent: citation_checker
+        retry: 1
+
+      - name: "Generate MCP JSON"
+        agent: mcp_formatter
+        retry: 1
+
+      - name: "Generate Audio"
+        agent: text_to_voice_agent
+        conditional: "audio_enabled == true"
+        retry: 1
+
+      - name: "Translate Chapter"
+        agent: translator_agent
+        conditional: "target_language != null"
+        retry: 1
+
+      - name: "Publish to GitHub"
+        agent: github_publisher
+        retry: 3
+
+  quick_edit_pipeline:
+    description: "Quick edit and republish existing chapter"
+    steps:
+      - name: "Refine Chapter"
+        agent: chapter_refiner
+        retry: 1
+
+      - name: "Validate Citations"
+        agent: citation_checker
+        retry: 1
+
+      - name: "Publish to GitHub"
+        agent: github_publisher
+        retry: 2
+
+  translation_only_pipeline:
+    description: "Translate existing chapter to new language"
+    steps:
+      - name: "Translate Chapter"
+        agent: translator_agent
+        retry: 1
+
+      - name: "Publish to GitHub"
+        agent: github_publisher
+        retry: 2
+
+  audio_generation_pipeline:
+    description: "Generate audio for existing chapter"
+    steps:
+      - name: "Generate Audio"
+        agent: text_to_voice_agent
+        retry: 1
+
+      - name: "Publish to GitHub"
+        agent: github_publisher
+        retry: 2
+
+error_handling:
+  max_retries: 3
+  retry_delay_seconds: 5
+  fallback_strategy: "log_and_continue"
+  notification_channels:
+    - email
+    - github_issue
+
+monitoring:
+  log_level: "INFO"
+  metrics_enabled: true
+  telemetry_endpoint: "optional"

@@ -1,0 +1,119 @@
+{
+  "chapter": 2,
+  "title": "The Robotic Nervous System (ROS 2)",
+  "slug": "002-ros2-module",
+  "module": 1,
+  "status": "implementation_in_progress",
+  "metadata": {
+    "version": "0.1.0",
+    "lastUpdated": "2025-12-07",
+    "author": "Asma Iqbal",
+    "estimatedReadingTime": "90 minutes",
+    "handsOnTime": "3-4 hours"
+  },
+  "learningObjectives": [
+    "Understand ROS 2 architecture and computation graph",
+    "Create publisher/subscriber nodes in Python",
+    "Implement services and actions for robot control",
+    "Bridge Python AI agents to ROS 2 controllers",
+    "Model robots using URDF (SimpleHumanoid 5-7 DOF)"
+  ],
+  "topics": [
+    {
+      "id": "2.1",
+      "title": "ROS 2 Architecture and Computation Graph",
+      "contentPath": "docs/modules/ros2-nervous-system.md#architecture",
+      "concepts": [
+        "Nodes",
+        "Topics",
+        "Services",
+        "Actions",
+        "Parameters",
+        "QoS (Quality of Service)"
+      ],
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "2.2",
+      "title": "Publisher/Subscriber Pattern",
+      "contentPath": "docs/modules/ros2-nervous-system.md#pubsub",
+      "examples": [
+        "examples/ros2-module/nodes/simple_publisher.py",
+        "examples/ros2-module/nodes/simple_subscriber.py"
+      ],
+      "exercises": [
+        "Create a temperature sensor publisher",
+        "Build a multi-topic subscriber"
+      ]
+    },
+    {
+      "id": "2.3",
+      "title": "Services and Actions",
+      "contentPath": "docs/modules/ros2-nervous-system.md#services-actions",
+      "examples": [
+        "examples/ros2-module/services/",
+        "examples/ros2-module/actions/"
+      ],
+      "exercises": [
+        "Create a service for robot arm control",
+        "Implement a navigation action server"
+      ]
+    },
+    {
+      "id": "2.4",
+      "title": "Bridging Python AI Agents to ROS Controllers",
+      "contentPath": "docs/modules/ros2-nervous-system.md#ai-bridge",
+      "examples": [
+        "examples/ros2-module/ai-bridge/"
+      ],
+      "exercises": [
+        "Connect OpenAI API to ROS 2 node",
+        "Build decision-making agent for robot"
+      ]
+    },
+    {
+      "id": "2.5",
+      "title": "URDF for Humanoid Robot Modeling",
+      "contentPath": "docs/modules/ros2-nervous-system.md#urdf",
+      "concepts": [
+        "Links and Joints",
+        "SimpleHumanoid 5-7 DOF model",
+        "Visual and Collision Geometry",
+        "Joint Limits and Dynamics"
+      ],
+      "examples": [
+        "examples/ros2-module/urdf/simple_humanoid.urdf"
+      ],
+      "exercises": [
+        "Modify URDF to add a new joint",
+        "Visualize robot in RViz2"
+      ]
+    }
+  ],
+  "prerequisites": [
+    "Chapter 1: Introduction to Physical AI",
+    "Python 3.8+",
+    "Ubuntu 22.04 or WSL2",
+    "ROS 2 Humble installed"
+  ],
+  "technicalRequirements": {
+    "os": "Ubuntu 22.04 LTS (or WSL2)",
+    "ros2Version": "Humble Hawksbill or Iron Irwini",
+    "pythonVersion": "3.8+",
+    "dependencies": [
+      "rclpy",
+      "std_msgs",
+      "geometry_msgs",
+      "sensor_msgs"
+    ]
+  },
+  "previousChapter": "chapter1.json",
+  "nextChapter": "chapter3.json",
+  "resources": {
+    "specPath": "specs/002-ros2-module/spec.md",
+    "examplesPath": "examples/ros2-module/",
+    "assetsPath": "assets/diagrams/ros2-module/",
+    "setupGuide": "SETUP.md#ros2-installation"
+  }
+}

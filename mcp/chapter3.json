@@ -1,0 +1,152 @@
+{
+  "chapter": 3,
+  "title": "The Digital Twin (Gazebo & Unity)",
+  "slug": "003-digital-twin-module",
+  "module": 2,
+  "status": "implementation_in_progress",
+  "metadata": {
+    "version": "0.1.0",
+    "lastUpdated": "2025-12-07",
+    "author": "Asma Iqbal",
+    "estimatedReadingTime": "90 minutes",
+    "handsOnTime": "4-5 hours"
+  },
+  "learningObjectives": [
+    "Simulate physics and sensors in Gazebo Classic",
+    "Create custom Gazebo worlds and spawn robots",
+    "Integrate simulated sensors (LiDAR, Depth Camera, IMU) with ROS 2",
+    "Understand digital twin concepts for robotics",
+    "Preview Unity visualization for robots"
+  ],
+  "topics": [
+    {
+      "id": "3.1",
+      "title": "Introduction to Digital Twins",
+      "contentPath": "docs/modules/digital-twin.md#intro",
+      "concepts": [
+        "What is a Digital Twin",
+        "Benefits of simulation-first approach",
+        "Gazebo vs Unity vs Isaac Sim",
+        "Sim-to-Real considerations"
+      ],
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "3.2",
+      "title": "Gazebo Classic Fundamentals",
+      "contentPath": "docs/modules/digital-twin.md#gazebo-basics",
+      "concepts": [
+        "Gazebo architecture",
+        "Physics engines (ODE, Bullet)",
+        "SDF (Simulation Description Format)",
+        "Plugins and sensors"
+      ],
+      "examples": [
+        "examples/digital-twin-module/worlds/simple_world.world",
+        "examples/digital-twin-module/launch/gazebo_launch.py"
+      ],
+      "exercises": [
+        "Create a custom world with obstacles",
+        "Launch Gazebo with ROS 2 bridge"
+      ]
+    },
+    {
+      "id": "3.3",
+      "title": "Simulating Sensors",
+      "contentPath": "docs/modules/digital-twin.md#sensors",
+      "sensors": [
+        {
+          "name": "LiDAR",
+          "type": "ray",
+          "rosMsg": "sensor_msgs/LaserScan"
+        },
+        {
+          "name": "Depth Camera",
+          "type": "depth_camera",
+          "rosMsg": "sensor_msgs/Image, sensor_msgs/PointCloud2"
+        },
+        {
+          "name": "RGB Camera",
+          "type": "camera",
+          "rosMsg": "sensor_msgs/Image"
+        },
+        {
+          "name": "IMU",
+          "type": "imu",
+          "rosMsg": "sensor_msgs/Imu"
+        }
+      ],
+      "examples": [
+        "examples/digital-twin-module/sensors/lidar_sensor.xacro",
+        "examples/digital-twin-module/sensors/depth_camera.xacro",
+        "examples/digital-twin-module/sensors/imu_sensor.xacro"
+      ],
+      "exercises": [
+        "Add LiDAR to SimpleHumanoid URDF",
+        "Visualize depth camera in RViz2",
+        "Process IMU data in ROS 2 node"
+      ]
+    },
+    {
+      "id": "3.4",
+      "title": "Spawning and Controlling Robots",
+      "contentPath": "docs/modules/digital-twin.md#robot-control",
+      "concepts": [
+        "Spawn robot from URDF",
+        "Gazebo ROS 2 control",
+        "Joint controllers",
+        "Velocity and position control"
+      ],
+      "examples": [
+        "examples/digital-twin-module/launch/spawn_humanoid.py",
+        "examples/digital-twin-module/control/joint_controller.py"
+      ],
+      "exercises": [
+        "Spawn SimpleHumanoid in custom world",
+        "Control robot joints from ROS 2 node",
+        "Implement walking gait controller"
+      ]
+    },
+    {
+      "id": "3.5",
+      "title": "Unity Visualization (Preview)",
+      "contentPath": "docs/modules/digital-twin.md#unity",
+      "concepts": [
+        "Unity Robotics Hub overview",
+        "ROS-Unity integration",
+        "When to use Unity vs Gazebo",
+        "External resources for Unity robotics"
+      ],
+      "examples": [],
+      "exercises": [],
+      "note": "Teaser content with external resource links"
+    }
+  ],
+  "prerequisites": [
+    "Chapter 2: The Robotic Nervous System (ROS 2)",
+    "ROS 2 Humble installed",
+    "Gazebo Classic 11.x installed",
+    "Basic understanding of URDF"
+  ],
+  "technicalRequirements": {
+    "os": "Ubuntu 22.04 LTS (or WSL2 with GUI support)",
+    "ros2Version": "Humble Hawksbill",
+    "gazeboVersion": "Classic 11.x",
+    "pythonVersion": "3.8+",
+    "dependencies": [
+      "gazebo_ros_pkgs",
+      "ros2_control",
+      "gazebo_ros2_control",
+      "xacro"
+    ]
+  },
+  "previousChapter": "chapter2.json",
+  "nextChapter": "chapter4.json",
+  "resources": {
+    "specPath": "specs/003-digital-twin-module/spec.md",
+    "examplesPath": "examples/digital-twin-module/",
+    "assetsPath": "assets/diagrams/digital-twin-module/",
+    "setupGuide": "SETUP.md#gazebo-installation"
+  }
+}

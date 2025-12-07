@@ -1,0 +1,50 @@
+---
+id: ros2-installation
+title: ROS2 Installation
+---
+
+# ROS2 Installation
+
+<!-- Add theory, examples, diagrams here -->
+
+## Overview
+
+This guide covers installing ROS 2 Humble Hawksbill on various platforms.
+
+## Ubuntu Installation
+
+```bash
+# Add ROS 2 apt repository
+sudo apt update && sudo apt install -y software-properties-common
+sudo add-apt-repository universe
+
+# Add ROS 2 GPG key
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
+
+# Install ROS 2 Humble
+sudo apt update
+sudo apt install -y ros-humble-desktop
+```
+
+## WSL2 Installation
+
+<!-- WSL2-specific steps -->
+
+## Docker Installation
+
+<!-- Docker-based installation -->
+
+## Environment Setup
+
+```bash
+# Source ROS 2 setup
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+## Verification
+
+```bash
+# Check ROS 2 installation
+ros2 --version
+```

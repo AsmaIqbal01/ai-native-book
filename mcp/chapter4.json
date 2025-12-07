@@ -1,0 +1,162 @@
+{
+  "chapter": 4,
+  "title": "The AI-Robot Brain (NVIDIA Isaac™)",
+  "slug": "004-isaac-module",
+  "module": 3,
+  "status": "specification_complete",
+  "metadata": {
+    "version": "0.1.0",
+    "lastUpdated": "2025-12-07",
+    "author": "Asma Iqbal",
+    "estimatedReadingTime": "120 minutes",
+    "handsOnTime": "5-6 hours"
+  },
+  "learningObjectives": [
+    "Use NVIDIA Isaac Sim for photorealistic robot simulation",
+    "Implement hardware-accelerated perception with Isaac ROS",
+    "Apply Nav2 for autonomous navigation and path planning",
+    "Understand sim-to-real transfer techniques",
+    "Train perception models in simulation"
+  ],
+  "topics": [
+    {
+      "id": "4.1",
+      "title": "Introduction to NVIDIA Isaac Platform",
+      "contentPath": "docs/modules/isaac-brain.md#intro",
+      "concepts": [
+        "Isaac Sim overview",
+        "Isaac ROS overview",
+        "Isaac vs Gazebo comparison",
+        "GPU acceleration benefits",
+        "Omniverse platform"
+      ],
+      "examples": [],
+      "exercises": []
+    },
+    {
+      "id": "4.2",
+      "title": "NVIDIA Isaac Sim",
+      "contentPath": "docs/modules/isaac-brain.md#isaac-sim",
+      "concepts": [
+        "Photorealistic rendering",
+        "RTX ray tracing",
+        "Synthetic data generation",
+        "Domain randomization",
+        "Importing URDF/USD models"
+      ],
+      "examples": [
+        "examples/004-isaac-module/sim/simple_world.usd",
+        "examples/004-isaac-module/sim/spawn_humanoid.py"
+      ],
+      "exercises": [
+        "Create photorealistic warehouse environment",
+        "Spawn SimpleHumanoid in Isaac Sim",
+        "Generate synthetic training data"
+      ]
+    },
+    {
+      "id": "4.3",
+      "title": "Isaac ROS - Hardware-Accelerated Perception",
+      "contentPath": "docs/modules/isaac-brain.md#isaac-ros",
+      "concepts": [
+        "GPU-accelerated computer vision",
+        "Object detection (DOPE, CenterPose)",
+        "Depth estimation (ESS, Bi3D)",
+        "Visual SLAM (VSLAM)",
+        "AprilTag detection"
+      ],
+      "packages": [
+        "isaac_ros_dnn_inference",
+        "isaac_ros_object_detection",
+        "isaac_ros_depth_estimation",
+        "isaac_ros_visual_slam",
+        "isaac_ros_apriltag"
+      ],
+      "examples": [
+        "examples/004-isaac-module/perception/object_detection.py",
+        "examples/004-isaac-module/perception/depth_estimation.py",
+        "examples/004-isaac-module/perception/visual_slam.py"
+      ],
+      "exercises": [
+        "Detect objects using Isaac ROS",
+        "Estimate depth from stereo cameras",
+        "Build SLAM map of environment"
+      ]
+    },
+    {
+      "id": "4.4",
+      "title": "Navigation with Nav2",
+      "contentPath": "docs/modules/isaac-brain.md#nav2",
+      "concepts": [
+        "Nav2 architecture",
+        "Costmap configuration",
+        "Path planning algorithms (Dijkstra, A*)",
+        "Controller plugins (DWB, TEB)",
+        "Recovery behaviors"
+      ],
+      "examples": [
+        "examples/004-isaac-module/navigation/nav2_params.yaml",
+        "examples/004-isaac-module/navigation/nav2_launch.py"
+      ],
+      "exercises": [
+        "Configure Nav2 for SimpleHumanoid",
+        "Implement autonomous navigation",
+        "Add obstacle avoidance behaviors"
+      ]
+    },
+    {
+      "id": "4.5",
+      "title": "Sim-to-Real Transfer",
+      "contentPath": "docs/modules/isaac-brain.md#sim2real",
+      "concepts": [
+        "Domain adaptation techniques",
+        "Sensor noise modeling",
+        "Actuator dynamics modeling",
+        "Real-world calibration",
+        "Validation strategies"
+      ],
+      "examples": [
+        "examples/004-isaac-module/sim2real/domain_randomization.py",
+        "examples/004-isaac-module/sim2real/noise_models.py"
+      ],
+      "exercises": [
+        "Apply domain randomization",
+        "Add realistic sensor noise",
+        "Test sim policies in different conditions"
+      ]
+    }
+  ],
+  "prerequisites": [
+    "Chapter 3: The Digital Twin (Gazebo & Unity)",
+    "NVIDIA GPU with RTX capability (recommended)",
+    "ROS 2 Humble installed",
+    "Isaac Sim installed",
+    "Understanding of computer vision basics"
+  ],
+  "technicalRequirements": {
+    "os": "Ubuntu 22.04 LTS",
+    "ros2Version": "Humble Hawksbill",
+    "isaacSimVersion": "2023.1.1 or later",
+    "gpu": "NVIDIA RTX GPU (RTX 2060 or better recommended)",
+    "pythonVersion": "3.8+",
+    "dependencies": [
+      "isaac_sim",
+      "isaac_ros_common",
+      "nav2_bringup",
+      "nav2_simple_commander"
+    ]
+  },
+  "previousChapter": "chapter3.json",
+  "nextChapter": "chapter5.json",
+  "resources": {
+    "specPath": "specs/004-isaac-module/spec.md",
+    "examplesPath": "examples/004-isaac-module/",
+    "assetsPath": "assets/diagrams/isaac-module/",
+    "setupGuide": "SETUP.md#isaac-installation",
+    "externalLinks": {
+      "isaacSim": "https://developer.nvidia.com/isaac-sim",
+      "isaacROS": "https://nvidia-isaac-ros.github.io/",
+      "nav2": "https://navigation.ros.org/"
+    }
+  }
+}
