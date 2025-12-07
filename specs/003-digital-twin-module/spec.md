@@ -1,10 +1,14 @@
-# Feature Specification: Module 2 - The Digital Twin (Gazebo & Unity)
+# Feature Specification: Chapter 3 / Module 2 - The Digital Twin (Gazebo & Unity)
 
+**Chapter**: 3
+**Module**: 2 (The Digital Twin)
 **Feature ID**: 003-digital-twin-module
 **Type**: module
 **Status**: Draft
 **Created**: 2025-12-07
 **Last Updated**: 2025-12-07
+**Book Structure**: Chapter 3 of 5 (Intro → ROS 2 → **Digital Twin** → Isaac → VLA)
+**Prerequisites**: Chapter 1 (Introduction), Chapter 2 (ROS 2 Module)
 
 ---
 

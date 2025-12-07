@@ -1,8 +1,12 @@
-# Feature Specification: The Robotic Nervous System (ROS 2) Module
+# Feature Specification: Chapter 2 / Module 1 - The Robotic Nervous System (ROS 2)
 
+**Chapter**: 2
+**Module**: 1 (The Robotic Nervous System)
 **Feature Branch**: `002-ros2-module`
 **Created**: 2025-12-07
 **Status**: Draft
+**Book Structure**: Chapter 2 of 5 (Intro → **ROS 2** → Digital Twin → Isaac → VLA)
+**Prerequisites**: Chapter 1 (Introduction to Physical AI)
 **Input**: User description: "ROS 2 module for robotics textbook covering nodes, topics, services, actions, URDF, and bridging Python agents to ROS controllers in simulation"
 
 ## User Scenarios & Testing *(mandatory)*
