@@ -116,9 +116,9 @@ Students learn the Unified Robot Description Format (URDF) structure, including 
 - **FR-005**: Module MUST demonstrate ROS 2 actions with goal, feedback, and result handling in Python
 - **FR-006**: Module MUST explain when to use topics vs services vs actions with decision criteria and use cases
 - **FR-007**: Module MUST show how to bridge Python agents to ROS 2 actuator controllers with working examples
-- **FR-008**: Module MUST provide examples that run successfully in Gazebo or Isaac Sim simulation environments
-- **FR-009**: Module MUST explain URDF structure including links, joints, and sensor definitions with humanoid robot examples
-- **FR-010**: Module MUST include a URDF snippet for a simple humanoid robot with annotations explaining each component
+- **FR-008**: Module MUST provide examples that run successfully in Gazebo Classic (version 11) using a custom simplified humanoid robot (5-7 DOF)
+- **FR-009**: Module MUST explain URDF structure including links, joints, and sensor definitions using the custom simplified humanoid robot as the teaching example
+- **FR-010**: Module MUST include the complete URDF for the custom simplified humanoid (torso, head, 2 arms, basic sensors) with detailed annotations explaining each component
 - **FR-011**: All Python code examples MUST run without errors on ROS 2 Humble and Iron distributions
 - **FR-012**: All code examples MUST include verification instructions (expected output, ros2 commands to test functionality)
 - **FR-013**: Module MUST provide troubleshooting guidance for common ROS 2 setup and runtime errors
@@ -129,6 +129,9 @@ Students learn the Unified Robot Description Format (URDF) structure, including 
 - **FR-018**: Module MUST specify ROS 2 package dependencies and installation requirements clearly
 - **FR-019**: Module MUST provide examples of integrating sensor data (camera, IMU, lidar) into ROS 2 nodes
 - **FR-020**: Module MUST include instructions for visualizing ROS 2 computation graphs using rqt_graph or similar tools
+- **FR-021**: Each major section (Nodes, Services, Actions, Agent Bridge, URDF) MUST include 1-2 complete, well-documented code examples inline with full annotations
+- **FR-022**: Module MUST include a "Further Exploration" appendix with optional advanced topics: DDS architecture, QoS policies, performance tuning, and advanced debugging
+- **FR-023**: Companion GitHub repository MUST be provided containing all code examples, custom humanoid URDF files, Gazebo launch scripts, and additional example variations
 
 ### Key Entities *(include if feature involves data)*
 
@@ -171,25 +174,30 @@ Students learn the Unified Robot Description Format (URDF) structure, including 
 
 ## Out of Scope *(optional)*
 
-- Advanced ROS 2 topics like custom message/service definitions, lifecycle nodes, or component composition (covered in advanced chapters if needed)
+### Completely Out of Scope (Not in Module or Appendix)
+- Lifecycle nodes and component composition - covered in advanced chapters if needed
 - ROS 2 build systems (colcon, ament) beyond basic package structure - students use pre-built packages for this module
 - C++ ROS 2 development - module focuses exclusively on Python (rclpy) for consistency with AI/agent development
 - ROS 1 (legacy) or ROS 1-to-ROS 2 bridge - textbook is ROS 2 native
-- Detailed QoS (Quality of Service) configuration - basic QoS profiles mentioned but deep dive deferred
 - Multi-robot systems and namespacing - covered in later chapters
-- ROS 2 security (SROS2) - important but out of scope for introductory module
-- Custom URDF creation from scratch - students learn to read and modify URDF, not design robots from scratch
-- Advanced simulation features (physics tuning, plugin development) - use default Gazebo configurations
+- ROS 2 security (SROS2) - important but deferred to security-focused chapters
 - Real hardware interfacing - all examples simulation-based per constitution safety requirements
-- Performance optimization and real-time control - basic concepts only, advanced topics deferred
+- Gazebo Ignition/Isaac Sim - using Gazebo Classic (version 11) exclusively for consistency
+
+### Moved to Appendix (Previously Out of Scope, Now Optional)
+- Detailed QoS (Quality of Service) configuration - now in "Further Exploration" appendix
+- DDS architecture and vendor comparisons - now in appendix
+- Performance optimization techniques - now in appendix
+- Custom message/service definitions (introduction only) - now in appendix
+- Advanced debugging workflows - now in appendix
 
 ## Dependencies *(optional)*
 
 - Requires Introduction to Physical AI chapter (001-physical-ai-intro) to be completed first
 - Requires constitution.md robotics content generation rules and testing standards
 - Assumes ROS 2 Humble or Iron distribution is installed (installation guide may be separate chapter/appendix)
-- Requires Gazebo Classic or Gazebo Ignition (garden/fortress) for simulation examples
-- Depends on availability of a simple humanoid URDF model for examples (can use existing open-source models like Robotis OP3 or create simplified model)
+- Requires Gazebo Classic (version 11) for all simulation examples
+- Requires creation of custom simplified humanoid URDF model (5-7 DOF: torso, head, 2 arms) with basic sensors (camera, IMU, joint encoders)
 - May reference rqt_graph, RViz, and other ROS 2 visualization tools (installation instructions needed)
 - Assumes Python 3.8+ environment with rclpy and standard ROS 2 Python packages
 - Later chapters will depend on this module's ROS 2 foundation (LLM integration, navigation, manipulation)
@@ -214,14 +222,56 @@ Students learn the Unified Robot Description Format (URDF) structure, including 
 - **Risk**: URDF syntax can be intimidating and dry for students
   - **Mitigation**: Use simplified humanoid examples; focus on intuition over exhaustive reference; provide visual aids; make URDF section optional/reference material rather than prerequisite
 
+## Clarifications Resolved *(from /sp.clarify)*
+
+### Code Example Structure (Clarified 2025-12-07)
+
+**Decision**: Use 1-2 complete, well-documented examples per major topic
+- Each major section (Nodes, Services, Actions, Agent Bridge, URDF) includes 1-2 complete, runnable code examples inline
+- Examples prioritize clarity and modularity over brevity
+- Additional variations and advanced examples provided in companion GitHub repository
+- All inline code is fully annotated with comments explaining key concepts
+- Each example includes verification instructions using ros2 CLI tools
+
+**Rationale**: Keeps module readable and focused while ensuring students have working reference implementations. Companion repository allows exploration without cluttering main content.
+
+### Simulation Environment (Clarified 2025-12-07)
+
+**Decision**: Gazebo Classic with Simple Custom Humanoid Robot
+- **Simulator**: Gazebo Classic (version 11) for stability and broad compatibility
+- **Robot Model**: Custom simplified humanoid with 5-7 DOF (degrees of freedom)
+  - Components: torso (base), head (1 DOF pan), 2 arms (2-3 DOF each)
+  - Total: ~5-7 joints, manageable for beginners
+  - URDF created from scratch as teaching example
+  - Includes basic sensors: camera (head), IMU (torso), joint encoders
+- Simple wheeled mobile base optional for initial pub/sub examples before introducing humanoid complexity
+
+**Rationale**: Gazebo Classic provides stable, well-documented environment. Custom simplified humanoid allows teaching URDF from scratch without overwhelming students with full 20+ DOF robot complexity. Easier to visualize and understand than complex existing models like OP3.
+
+### Advanced Topics Placement (Clarified 2025-12-07)
+
+**Decision**: Include advanced topics in module appendix exercises
+- Main module sections remain beginner-friendly with conceptual DDS/QoS overview
+- Module appendix titled "Further Exploration" includes:
+  - Deep dive into DDS architecture and vendors
+  - QoS policy exploration (reliability, durability, history, lifespan, deadline)
+  - Performance tuning and optimization techniques
+  - Advanced debugging workflows
+  - Custom message/service definitions (brief introduction)
+- Appendix clearly marked as optional for motivated students
+- Appendix exercises include hands-on challenges building on main module concepts
+
+**Rationale**: Keeps main module accessible to beginners while providing growth path for advanced students. All ROS 2 content consolidated in one module rather than deferring to separate advanced chapters.
+
 ## Notes *(optional)*
 
 - This module is the technical foundation for all ROS 2 work in the textbook; quality and clarity are critical
-- Consider providing a companion GitHub repository with all code examples for easy download and testing
+- Companion GitHub repository MUST include all code examples, custom humanoid URDF files, and Gazebo launch scripts
 - ASCII diagrams for ROS 2 architecture should be clear and simple; avoid overly complex graph visualizations
 - Code examples should prioritize readability over optimal ROS 2 practices (e.g., verbose naming, extra comments)
 - Include "Further Reading" callouts for students who want deeper understanding of DDS, QoS, or ROS 2 internals
-- Test all examples in a clean ROS 2 environment to catch missing dependencies or undocumented assumptions
+- Test all examples in a clean ROS 2 Humble environment with Gazebo Classic 11 to catch missing dependencies
+- Custom humanoid URDF should be versioned and documented with design rationale
 - Consider creating short demo videos showing expected output of each major example (optional supplement)
 - This specification intentionally avoids implementation details (file formats for publishing, specific simulation plugins) per constitution guidelines
 - Ensure consistency in terminology: "ROS 2 node" not "ROS2 node", "topic" not "channel", "service" not "RPC"

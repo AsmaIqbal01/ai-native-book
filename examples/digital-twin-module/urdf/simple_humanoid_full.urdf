@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<robot name="simple_humanoid_full">
+  <!-- Base robot model from Module 1 -->
+  <include filename="$(find ai-native-book)/examples/ros2-module/urdf/simple_humanoid.urdf" />
+
+  <!-- All sensors (LiDAR, depth camera, IMU) and gazebo_ros_control plugin -->
+</robot>

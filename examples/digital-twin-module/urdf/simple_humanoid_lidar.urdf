@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<robot name="simple_humanoid_lidar">
+  <!-- Base robot model from Module 1 -->
+  <include filename="$(find ai-native-book)/examples/ros2-module/urdf/simple_humanoid.urdf" />
+
+  <!-- LiDAR sensor -->
+</robot>
