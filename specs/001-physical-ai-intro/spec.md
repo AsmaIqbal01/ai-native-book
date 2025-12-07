@@ -1,8 +1,10 @@
-# Feature Specification: Introduction to Physical AI Chapter
+# Feature Specification: Chapter 1 - Introduction to Physical AI
 
+**Chapter**: 1 (Introduction)
 **Feature Branch**: `001-physical-ai-intro`
 **Created**: 2025-12-07
 **Status**: Draft
+**Book Structure**: Chapter 1 of 5 (Intro → ROS 2 → Digital Twin → Isaac → VLA)
 **Input**: User description: "Introduction to Physical AI chapter for textbook covering embodied intelligence, humanoid robotics landscape, and core sensor systems used in humanoid robots"
 
 ## User Scenarios & Testing *(mandatory)*
