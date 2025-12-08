@@ -1,7 +1,9 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 title: The Humanoid Robotics Landscape
 description: Exploring current humanoid robot platforms, companies, and technical approaches
+chapter_number: 1
+module_number: 4
 ---
 
 # The Humanoid Robotics Landscape

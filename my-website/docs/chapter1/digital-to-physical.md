@@ -1,7 +1,9 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 title: From Digital to Physical Intelligence
 description: Understanding the technical transition from pure AI to embodied systems
+chapter_number: 1
+module_number: 3
 ---
 
 # From Digital to Physical Intelligence
