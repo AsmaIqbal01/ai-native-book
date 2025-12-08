@@ -120,7 +120,7 @@ const config: Config = {
             },
             {
               label: 'Physical AI Fundamentals',
-              to: '/docs/chapter1/what-is-physical-ai',
+              to: '/docs/chapter1/physical-ai',
             },
             {
               label: 'ROS2 Basics',
@@ -166,12 +166,12 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['python', 'bash', 'yaml', 'markup', 'cpp', 'cmake'],
     },
-    algolia: {
+    /* algolia: {
       appId: 'YOUR_APP_ID',
       apiKey: 'YOUR_SEARCH_API_KEY',
       indexName: 'ai-native-robotics',
       contextualSearch: true,
-    },
+    }, */
   } satisfies Preset.ThemeConfig,
 };
 

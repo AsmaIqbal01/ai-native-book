@@ -20,11 +20,8 @@ const sidebars: SidebarsConfig = {
       label: '📖 Chapter 1: Introduction to Physical AI',
       collapsed: false,
       items: [
-        'chapter1/what-is-physical-ai',
-        'chapter1/embodied-intelligence',
-        'chapter1/physical-laws-in-robotics',
-        'chapter1/humanoid-landscape',
-        'chapter1/sensor-systems',
+        'chapter1/physical-ai',
+        'chapter1/digital-to-physical',
       ],
     },
 

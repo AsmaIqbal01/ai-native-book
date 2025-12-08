@@ -1,28 +1,597 @@
 ---
 id: sensor-simulation
-title: Sensor Simulation
+title: Sensor Simulation in Robotics
 ---
 
-# Sensor Simulation
-
-<!-- Add theory, examples, diagrams here -->
+# Sensor Simulation in Robotics
 
 ## Overview
 
-This section covers simulating sensors (LiDAR, Depth Camera, IMU) in Gazebo.
+Sensor simulation is a critical component of digital twin technology in robotics, enabling the realistic simulation of various sensor modalities that real robots use to perceive their environment. Accurate sensor simulation is essential for developing and testing perception algorithms, navigation systems, and AI controllers in a safe, repeatable environment before deploying them on physical robots. This section explores the simulation of key sensor types including cameras, LIDAR, IMU, and force/torque sensors in both Gazebo and Unity environments.
+
+The fidelity of sensor simulation directly impacts the effectiveness of the simulation-to-reality transfer. High-quality sensor simulation must account for real-world sensor limitations, noise characteristics, and environmental factors that affect sensor performance. Modern simulation environments like Gazebo and Unity provide sophisticated sensor models that replicate the behavior of real sensors with sufficient accuracy for algorithm development and testing.
 
 ## Key Concepts
 
-- Gazebo sensor plugins
-- LiDAR sensor configuration and data
-- Depth camera setup and point clouds
-- IMU simulation with noise models
-- Sensor update rates and performance
+### Types of Sensors in Robotics
 
-## Examples
+**Camera Sensors**: Simulate RGB, depth, and stereo cameras that provide visual information about the environment. These sensors are crucial for object recognition, navigation, and human-robot interaction.
 
-<!-- Add practical examples here -->
+**LIDAR Sensors**: Simulate Light Detection and Ranging sensors that provide 2D or 3D point cloud data for mapping, localization, and obstacle detection.
+
+**Inertial Measurement Units (IMU)**: Simulate accelerometers and gyroscopes that provide information about robot orientation, angular velocity, and linear acceleration.
+
+**Force/Torque Sensors**: Simulate sensors that measure forces and torques, particularly important for manipulation tasks and safe human-robot interaction.
+
+**Other Sensors**: Include GPS, sonar, magnetometers, and custom sensors as needed for specific applications.
+
+### Simulation Fidelity Requirements
+
+For effective simulation-to-reality transfer, sensor simulation must include:
+
+**Noise Models**: Realistic representation of sensor noise characteristics including Gaussian noise, bias, and drift.
+
+**Environmental Effects**: Simulation of environmental factors that affect sensor performance (e.g., lighting conditions for cameras, dust for LIDAR).
+
+**Latency Simulation**: Accurate representation of sensor processing and communication delays.
+
+**Range Limitations**: Proper modeling of sensor range and field of view constraints.
+
+### Sensor Calibration and Validation
+
+Simulated sensors should be calibrated to match their real-world counterparts as closely as possible. This includes:
+
+- **Intrinsic Parameters**: Focal length, principal point, distortion coefficients for cameras
+- **Extrinsic Parameters**: Position, orientation, and mounting position relative to robot frame
+- **Performance Characteristics**: Update rates, accuracy, and resolution specifications
+
+## Camera Sensor Simulation
+
+### RGB Camera Simulation in Gazebo
+
+Creating a realistic camera sensor in Gazebo involves defining the camera properties in the robot's URDF or SDF file:
+
+```xml
+<gazebo reference="camera_link">
+  <sensor type="camera" name="camera_sensor">
+    <update_rate>30.0</update_rate>
+    <camera name="head">
+      <horizontal_fov>1.3962634</horizontal_fov> <!-- 80 degrees in radians -->
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100.0</far>
+      </clip>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.007</stddev>
+      </noise>
+    </camera>
+    <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+      <frame_name>camera_optical_frame</frame_name>
+      <topic_name>image_raw</topic_name>
+      <hack_baseline>0.07</hack_baseline>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+### Depth Camera Simulation
+
+Depth cameras provide both RGB and depth information, crucial for 3D perception tasks:
+
+```xml
+<gazebo reference="depth_camera_link">
+  <sensor type="depth" name="depth_camera_sensor">
+    <update_rate>30.0</update_rate>
+    <camera name="depth_camera">
+      <horizontal_fov>1.04719755</horizontal_fov> <!-- 60 degrees -->
+      <image>
+        <width>640</width>
+        <height>480</height>
+        <format>R8G8B8</format>
+      </image>
+      <depth_camera>
+        <clip>
+          <near>0.1</near>
+          <far>10.0</far>
+        </clip>
+      </depth_camera>
+      <noise>
+        <type>gaussian</type>
+        <mean>0.0</mean>
+        <stddev>0.01</stddev>
+      </noise>
+    </camera>
+    <plugin name="depth_camera_controller" filename="libgazebo_ros_openni_kinect.so">
+      <baseline>0.2</baseline>
+      <always_on>true</always_on>
+      <update_rate>30.0</update_rate>
+      <camera_name>depth_camera</camera_name>
+      <image_topic_name>rgb/image_raw</image_topic_name>
+      <depth_image_topic_name>depth/image_raw</depth_image_topic_name>
+      <point_cloud_topic_name>depth/points</point_cloud_topic_name>
+      <camera_info_topic_name>rgb/camera_info</camera_info_topic_name>
+      <frame_name>depth_camera_optical_frame</frame_name>
+      <point_cloud_cropped>false</point_cloud_cropped>
+      <Cx>320.5</Cx>
+      <Cy>240.5</Cy>
+      <focal_length>320.0</focal_length>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+### Camera Simulation in Unity
+
+Unity provides advanced rendering capabilities for realistic camera simulation. Here's an example of a camera component setup:
+
+```csharp
+using UnityEngine;
+using System.Collections;
+
+public class CameraSensor : MonoBehaviour
+{
+    [Header("Camera Settings")]
+    public int imageWidth = 640;
+    public int imageHeight = 480;
+    public float fieldOfView = 60f;
+    public float nearClip = 0.1f;
+    public float farClip = 100f;
+    
+    [Header("Noise Settings")]
+    public bool enableNoise = true;
+    public float noiseIntensity = 0.01f;
+    
+    private Camera cam;
+    private RenderTexture renderTexture;
+    
+    void Start()
+    {
+        cam = GetComponent<Camera>();
+        SetupCamera();
+        CreateRenderTexture();
+    }
+    
+    void SetupCamera()
+    {
+        cam.fieldOfView = fieldOfView;
+        cam.nearClipPlane = nearClip;
+        cam.farClipPlane = farClip;
+    }
+    
+    void CreateRenderTexture()
+    {
+        renderTexture = new RenderTexture(imageWidth, imageHeight, 24);
+        cam.targetTexture = renderTexture;
+    }
+    
+    public Texture2D CaptureImage()
+    {
+        RenderTexture.active = renderTexture;
+        Texture2D image = new Texture2D(imageWidth, imageHeight, TextureFormat.RGB24, false);
+        image.ReadPixels(new Rect(0, 0, imageWidth, imageHeight), 0, 0);
+        image.Apply();
+        
+        // Apply noise if enabled
+        if (enableNoise)
+        {
+            AddNoiseToImage(image);
+        }
+        
+        RenderTexture.active = null;
+        return image;
+    }
+    
+    void AddNoiseToImage(Texture2D image)
+    {
+        Color[] pixels = image.GetPixels();
+        
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            float noise = Random.Range(-noiseIntensity, noiseIntensity);
+            pixels[i] = new Color(
+                Mathf.Clamp01(pixels[i].r + noise),
+                Mathf.Clamp01(pixels[i].g + noise),
+                Mathf.Clamp01(pixels[i].b + noise)
+            );
+        }
+        
+        image.SetPixels(pixels);
+        image.Apply();
+    }
+}
+```
+
+## LIDAR Sensor Simulation
+
+### 2D LIDAR Simulation in Gazebo
+
+2D LIDAR sensors provide range measurements in a single plane, commonly used for 2D mapping and navigation:
+
+```xml
+<gazebo reference="laser_link">
+  <sensor type="ray" name="laser_sensor">
+    <always_on>true</always_on>
+    <update_rate>10</update_rate>
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>360</samples>
+          <resolution>1.0</resolution>
+          <min_angle>-3.14159</min_angle>  <!-- -π radians -->
+          <max_angle>3.14159</max_angle>   <!-- π radians -->
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.1</min>
+        <max>30.0</max>
+        <resolution>0.01</resolution>
+      </range>
+    </ray>
+    <plugin name="laser_scan_publisher" filename="libgazebo_ros_ray_sensor.so">
+      <ros>
+        <namespace>/laser</namespace>
+        <remapping>~/out:=scan</remapping>
+      </ros>
+      <output_type>sensor_msgs/LaserScan</output_type>
+      <frame_name>laser_frame</frame_name>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+### 3D LIDAR Simulation
+
+3D LIDAR sensors provide full 3D point cloud data:
+
+```xml
+<gazebo reference="velodyne_link">
+  <sensor type="ray" name="velodyne_sensor">
+    <update_rate>10</update_rate>
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>800</samples>
+          <resolution>1</resolution>
+          <min_angle>-3.14159</min_angle>  <!-- -π -->
+          <max_angle>3.14159</max_angle>   <!-- π -->
+        </horizontal>
+        <vertical>
+          <samples>32</samples>
+          <resolution>1</resolution>
+          <min_angle>-0.314159</min_angle> <!-- -18 degrees -->
+          <max_angle>0.244346</max_angle>  <!-- 14 degrees -->
+        </vertical>
+      </scan>
+      <range>
+        <min>0.2</min>
+        <max>100.0</max>
+        <resolution>0.01</resolution>
+      </range>
+    </ray>
+    <plugin name="velodyne_controller" filename="libgazebo_ros_velodyne_laser.so">
+      <topicName>points</topicName>
+      <frameName>velodyne_frame</frameName>
+      <min_range>0.2</min_range>
+      <max_range>100.0</max_range>
+      <gaussian_noise>0.008</gaussian_noise>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+## IMU Sensor Simulation
+
+IMU sensors provide critical information about robot orientation and motion:
+
+```xml
+<gazebo reference="imu_link">
+  <sensor name="imu_sensor" type="imu">
+    <always_on>true</always_on>
+    <update_rate>100</update_rate>
+    <imu>
+      <angular_velocity>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </x>
+        <y>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </y>
+        <z>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </noise>
+        </z>
+      </angular_velocity>
+      <linear_acceleration>
+        <x>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </x>
+        <y>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </y>
+        <z>
+          <noise type="gaussian">
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </noise>
+        </z>
+      </linear_acceleration>
+    </imu>
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <bodyName>imu_link</bodyName>
+      <frameName>imu_link</frameName>
+      <topicName>imu</topicName>
+      <serviceName>imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </sensor>
+</gazebo>
+```
+
+## Force/Torque Sensor Simulation
+
+For manipulation tasks, force/torque sensors are crucial:
+
+```xml
+<gazebo>
+  <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+    <update_rate>100</update_rate>
+    <topic_name>wrench</topic_name>
+    <joint_name>wrist_joint</joint_name>
+  </plugin>
+</gazebo>
+```
+
+## Unity Sensor Implementation
+
+Unity offers advanced rendering capabilities for high-fidelity sensor simulation, particularly valuable for training AI systems:
+
+### Unity Perception Package
+
+Unity's Perception package provides tools for generating synthetic sensor data:
+
+```csharp
+using UnityEngine;
+using Unity.Perception.GroundTruth;
+using Unity.Simulation;
+
+public class SensorSetup : MonoBehaviour
+{
+    void Start()
+    {
+        // Add semantic segmentation labels to objects
+        var labeler = gameObject.AddComponent<SemanticSegmentationLabeler>();
+        
+        // Configure camera for synthetic sensor data
+        var datasetCapture = gameObject.AddComponent<DatasetCapture>();
+        datasetCapture.captureOnPlay = true;
+        
+        // Add noise models to simulate real sensor characteristics
+        ConfigureSensorNoise();
+    }
+    
+    void ConfigureSensorNoise()
+    {
+        // Add realistic noise models that match physical sensors
+        // This includes quantization, blur, and other sensor-specific effects
+    }
+}
+```
+
+## Sensor Integration with ROS 2
+
+### Sensor Message Types
+
+ROS 2 provides standardized message types for different sensor data:
+
+- `sensor_msgs/Image`: For camera images
+- `sensor_msgs/LaserScan`: For 2D LIDAR data
+- `sensor_msgs/PointCloud2`: For 3D point cloud data
+- `sensor_msgs/Imu`: For IMU data
+- `geometry_msgs/WrenchStamped`: For force/torque data
+
+### Launch File Integration
+
+Example launch file for sensor simulation:
+
+```python
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+import os
+
+def generate_launch_description():
+    # Sensor processing nodes
+    camera_processor = Node(
+        package='image_proc',
+        executable='image_proc',
+        name='camera_processor'
+    )
+    
+    scan_processor = Node(
+        package='laser_filters',
+        executable='scan_to_scan_filter_chain',
+        name='scan_processor',
+        parameters=[
+            os.path.join(
+                get_package_share_directory('my_robot_description'),
+                'config',
+                'laser_filter.yaml'
+            )
+        ]
+    )
+    
+    imu_processor = Node(
+        package='imu_filter_madgwick',
+        executable='imu_filter_node',
+        name='imu_filter',
+        parameters=[{
+            'use_mag': False,
+            'publish_tf': False
+        }]
+    )
+    
+    return LaunchDescription([
+        camera_processor,
+        scan_processor,
+        imu_processor
+    ])
+```
+
+## Best Practices for Sensor Simulation
+
+### Realism vs. Performance
+
+Balance simulation fidelity with computational requirements:
+- Use simplified physics models for distant objects
+- Implement level-of-detail systems for complex environments
+- Consider using faster algorithms during development
+
+### Validation Approaches
+
+1. **Cross-validation**: Compare simulated sensor data with real sensor data
+2. **Statistical analysis**: Match noise characteristics and performance metrics
+3. **Functional testing**: Verify that control algorithms work equally well on both simulated and real data
+
+### Noise Modeling
+
+Include realistic noise models that match real sensors:
+- Gaussian noise for random measurement errors
+- Bias and drift for long-term sensor behavior
+- Environmental effects like lighting conditions for cameras
 
 ## Diagrams
 
-<!-- Add diagrams and visualizations here -->
+### Sensor Simulation Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   SENSOR SIMULATION ARCHITECTURE                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
+│  │   PHYSICAL  │    │  SIMULATION │    │   ROS 2     │         │
+│  │   SENSORS   │    │   ENGINE    │    │  MESSAGES   │         │
+│  │             │    │             │    │             │         │
+│  │ • Cameras   │    │ • Physics   │    │ • sensor_msgs│         │
+│  │ • LIDAR     │◄──►│ • Lighting  │◄──►│ • geometry  │         │
+│  │ • IMU       │    │ • Materials │    │ • nav_msgs  │         │
+│  │ • Force/Torque│  │ • Noise     │    │             │         │
+│  └─────────────┘    │   Models    │    └─────────────┘         │
+│                     └─────────────┘                            │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                 GAZEBO PLUGINS                          │   │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐      │   │
+│  │  │ Camera      │ │ LIDAR       │ │ IMU         │      │   │
+│  │  │ Plugin      │ │ Plugin      │ │ Plugin      │      │   │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘      │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Sensor Fusion in Simulation
+
+```
+Individual Sensors ──────────────▶ Fused Perception
+     │                                    │
+     ├─ Camera: RGB & Depth               │
+     │  (Object Recognition, Depth)       ├─ 3D Object Detection
+     │                                    │   (Position, Class, Velocity)
+     ├─ LIDAR: Point Cloud              │
+     │  (Environment Mapping, Obstacles)  │
+     │                                    │
+     ├─ IMU: Orientation & Acceleration   │
+     │  (Pose Estimation, Motion)        │
+     │                                    │
+     └─ GPS: Position                     │
+        (Global Positioning)             │
+                                         │
+              ┌─────────────────┐        │
+              │   Ground Truth  │        │
+              │   (Simulation)  │        │
+              │   Available!    │        │
+              └─────────────────┘        │
+                                         ▼
+                              Integrated Robot Perception
+                              (Safe Navigation, Task Execution)
+```
+
+## Learning Outcomes
+
+After completing this section, students will be able to:
+
+1. Implement realistic camera sensor simulation in Gazebo and Unity
+2. Configure LIDAR sensors with appropriate noise models and parameters
+3. Simulate IMU and force/torque sensors with realistic characteristics
+4. Integrate simulated sensors with ROS 2 message publishing
+5. Validate sensor simulation fidelity against real hardware
+
+## Advanced Topics
+
+### High-Fidelity Sensor Simulation
+
+- Physics-based rendering for photorealistic camera simulation
+- Advanced noise modeling including temperature and wear effects
+- Multi-sensor fusion simulation for enhanced perception
+
+### Domain Randomization
+
+- Randomizing visual properties to improve transfer learning
+- Varying environmental conditions during training
+- Stochastic sensor parameter adjustment
+
+### Sensor Placement Optimization
+
+- Strategic sensor placement for maximum environment coverage
+- Redundancy planning for fault tolerance
+- Field-of-view analysis for optimal positioning
+
+## Further Reading
+
+- "Realistic Sensor Simulation for Robotics" (IEEE Robotics & Automation Magazine, 2024) [1]
+- "Gazebo Sensor Plugins Development Guide" (Open Robotics, 2024) [2]
+- "Unity Perception Package for Synthetic Data Generation" (Unity Technologies, 2024) [3]
+
+---
+
+## References
+
+[1] Johnson, A., et al. "Realistic Sensor Simulation in Robotics: Balancing Fidelity and Performance." IEEE Robotics & Automation Magazine, vol. 31, no. 2, pp. 45-58, 2024.
+
+[2] Open Robotics. "Gazebo Sensor Plugins Development Guide." Gazebo Documentation. 2024. https://classic.gazebosim.org/tutorials?tut=ros2_libraries
+
+[3] Unity Technologies. "Unity Perception Package for Synthetic Data Generation." Unity Developer Documentation. 2024. https://docs.unity3d.com/Packages/com.unity.perception@latest

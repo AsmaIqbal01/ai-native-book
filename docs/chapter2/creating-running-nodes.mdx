@@ -1,0 +1,523 @@
+---
+id: creating-running-nodes
+title: Creating and Running ROS 2 Nodes
+---
+
+# Creating and Running ROS 2 Nodes
+
+## Overview
+
+A ROS 2 node is an executable process that works as part of the ROS 2 computation graph. Nodes are the fundamental building blocks of any ROS 2 system, performing specific functions such as sensor data processing, control algorithm execution, or hardware interface management. Understanding how to create, structure, and run ROS 2 nodes is essential for building robotic systems that can communicate effectively within the ROS 2 middleware framework.
+
+In this section, we'll explore the fundamental concepts of ROS 2 nodes, including their structure in Python, how they communicate through topics using the publish/subscribe pattern, and how to use ROS 2 command-line tools for debugging and monitoring. We'll also cover best practices for node design that ensure robust and maintainable robotic systems.
+
+## Key Concepts
+
+### Node Structure and Lifecycle
+
+A ROS 2 node follows a standard structure with distinct lifecycle phases that allow for controlled initialization, operation, and cleanup. Understanding this structure is crucial for creating nodes that integrate well into larger robotic systems.
+
+**Basic Node Components**:
+- **Initialization**: Setting up the node name and establishing communication interfaces
+- **Execution Loop**: Processing callbacks and performing the node's primary function
+- **Cleanup**: Properly releasing resources when the node shuts down
+
+The lifecycle states of a ROS 2 node include:
+- **Unconfigured**: The node exists but is not ready for communication
+- **Inactive**: Configured but not actively processing data
+- **Active**: Fully operational and participating in the system
+- **Finalized**: Being shut down
+
+### Publisher-Subscriber Pattern
+
+The publish-subscribe (pub/sub) pattern is the most common communication mechanism in ROS 2. Publishers send data to named topics, while subscribers receive data from those topics. This decoupled approach allows for flexible system design where nodes can be added or removed without affecting others.
+
+**Publisher Responsibilities**:
+- Creating and maintaining the topic connection
+- Formatting data into ROS 2 messages
+- Determining the frequency of data publication
+- Managing Quality of Service (QoS) policies
+
+**Subscriber Responsibilities**:
+- Establishing topic subscriptions
+- Processing incoming message callbacks
+- Handling message data appropriately
+- Managing message queue behavior
+
+### Message Types and Communication
+
+ROS 2 defines standard message types that ensure compatibility between different nodes. These messages are serialized for transmission across the network and must follow specific structures defined by ROS interfaces (`.msg`, `.srv`, `.action` files).
+
+Common message packages include:
+- `std_msgs`: Basic data types like Int32, Float64, String
+- `sensor_msgs`: Sensor-specific data like LaserScan, Image, Imu
+- `geometry_msgs`: Spatial relationships like Point, Pose, Twist
+- `nav_msgs`: Navigation-related messages like Path, OccupancyGrid
+
+## Creating Your First ROS 2 Node
+
+### Prerequisites
+
+Before creating ROS 2 nodes, ensure you have:
+
+1. A complete ROS 2 installation (Humble Hawksbill or Iron Irwini recommended)
+2. Your ROS 2 environment sourced in your terminal
+3. A workspace set up for your custom nodes
+4. Basic Python knowledge with understanding of object-oriented programming
+
+### Basic Publisher Node
+
+Let's create a simple publisher node that publishes a counter value:
+
+```python
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class SimplePublisherNode(Node):
+    """
+    A simple ROS 2 publisher node that demonstrates basic node structure
+    """
+    def __init__(self):
+        # Initialize the node with a unique name
+        super().__init__('simple_publisher')
+        
+        # Create a publisher for String messages on the 'chatter' topic
+        # The second parameter (10) specifies the message queue size
+        self.publisher = self.create_publisher(String, 'chatter', 10)
+        
+        # Set up a timer to call the callback function every second
+        timer_period = 1.0  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        
+        # Counter to track message number
+        self.i = 0
+        
+        # Log that the node has started
+        self.get_logger().info('Simple publisher node initialized')
+
+    def timer_callback(self):
+        """
+        Callback function called by the timer at regular intervals
+        """
+        msg = String()
+        msg.data = f'Hello ROS 2! Message #{self.i}'
+        
+        # Publish the message
+        self.publisher.publish(msg)
+        
+        # Log the message for debugging
+        self.get_logger().info(f'Publishing: "{msg.data}"')
+        
+        # Increment the counter
+        self.i += 1
+
+
+def main(args=None):
+    """
+    Main function that initializes ROS 2, creates the node, and starts spinning
+    """
+    # Initialize the ROS 2 client library
+    rclpy.init(args=args)
+    
+    # Create an instance of our node class
+    simple_publisher = SimplePublisherNode()
+    
+    try:
+        # Spin the node to process callbacks
+        rclpy.spin(simple_publisher)
+    except KeyboardInterrupt:
+        # Handle graceful shutdown when Ctrl+C is pressed
+        simple_publisher.get_logger().info('Interrupted by user')
+    finally:
+        # Clean up resources
+        simple_publisher.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+### Basic Subscriber Node
+
+Now let's create a subscriber node that receives messages from the publisher:
+
+```python
+#!/usr/bin/env python3
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+
+
+class SimpleSubscriberNode(Node):
+    """
+    A simple ROS 2 subscriber node that demonstrates message reception
+    """
+    def __init__(self):
+        # Initialize the node with a unique name
+        super().__init__('simple_subscriber')
+        
+        # Create a subscription to the 'chatter' topic
+        # The callback function is called whenever a message arrives
+        self.subscription = self.create_subscription(
+            String,           # Message type
+            'chatter',        # Topic name
+            self.listener_callback,  # Callback function
+            10               # Queue size
+        )
+        
+        # Make sure the subscription is active
+        self.subscription  # Prevent unused variable warning
+        
+        # Log that the subscriber is ready
+        self.get_logger().info('Simple subscriber node initialized')
+
+    def listener_callback(self, msg):
+        """
+        Callback function called when a message arrives on the topic
+        """
+        # Log the received message
+        self.get_logger().info(f'I heard: "{msg.data}"')
+
+
+def main(args=None):
+    """
+    Main function that initializes ROS 2, creates the node, and starts spinning
+    """
+    # Initialize the ROS 2 client library
+    rclpy.init(args=args)
+    
+    # Create an instance of our subscriber node
+    simple_subscriber = SimpleSubscriberNode()
+    
+    try:
+        # Spin the node to process incoming messages
+        rclpy.spin(simple_subscriber)
+    except KeyboardInterrupt:
+        # Handle graceful shutdown when Ctrl+C is pressed
+        simple_subscriber.get_logger().info('Interrupted by user')
+    finally:
+        # Clean up resources
+        simple_subscriber.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+## Running ROS 2 Nodes
+
+### Setting up a ROS 2 Package
+
+To run these nodes, you need to place them in a ROS 2 package. Create the package structure:
+
+```bash
+# Create a new workspace
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+
+# Create a new package
+ros2 pkg create --build-type ament_python my_robot_nodes
+cd my_robot_nodes
+```
+
+Place the publisher code in `my_robot_nodes/my_robot_nodes/simple_publisher.py` and the subscriber code in `my_robot_nodes/my_robot_nodes/simple_subscriber.py`.
+
+### Package Configuration
+
+Update your `setup.py` file to make the nodes executable:
+
+```python
+from setuptools import setup
+from glob import glob
+import os
+
+package_name = 'my_robot_nodes'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='Your Name',
+    maintainer_email='your.email@example.com',
+    description='Simple ROS 2 publisher and subscriber nodes',
+    license='Apache License 2.0',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'simple_publisher = my_robot_nodes.simple_publisher:main',
+            'simple_subscriber = my_robot_nodes.simple_subscriber:main',
+        ],
+    },
+)
+```
+
+### Building and Running
+
+Build your package:
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select my_robot_nodes
+
+# Source the workspace
+source install/setup.bash
+```
+
+Now you can run the nodes:
+
+```bash
+# In one terminal, run the publisher
+ros2 run my_robot_nodes simple_publisher
+
+# In another terminal, run the subscriber
+ros2 run my_robot_nodes simple_subscriber
+```
+
+## Using ROS 2 Command-Line Tools
+
+ROS 2 provides powerful command-line tools for debugging and monitoring your nodes:
+
+### Node Management Tools
+
+```bash
+# List all running nodes
+ros2 node list
+
+# Get information about a specific node
+ros2 node info /simple_publisher
+
+# Find nodes that match a pattern
+ros2 node list --include-hidden-nodes
+```
+
+### Topic Management Tools
+
+```bash
+# List all topics
+ros2 topic list
+
+# Show information about a specific topic
+ros2 topic info /chatter
+
+# Echo messages on a topic (like our subscriber but from command line)
+ros2 topic echo /chatter
+
+# Publish a message to a topic (like our publisher)
+ros2 topic pub /chatter std_msgs/msg/String "data: 'Hello from command line'"
+
+# Monitor the rate of messages on a topic
+ros2 topic hz /chatter
+```
+
+### Service Management Tools
+
+```bash
+# List all services
+ros2 service list
+
+# Get information about a specific service
+ros2 service info /my_service
+
+# Call a service from command line
+ros2 service call /my_service example_interfaces/srv/AddTwoInts "{a: 1, b: 2}"
+```
+
+## Best Practices
+
+### Node Design Principles
+
+1. **Single Responsibility**: Each node should perform one primary function
+2. **Parameter Configuration**: Use ROS 2 parameters for runtime configuration
+3. **Error Handling**: Implement proper exception handling and logging
+4. **Resource Management**: Clean up resources when the node shuts down
+5. **Modularity**: Design nodes to be reusable in different contexts
+
+### Code Organization
+
+```python
+#!/usr/bin/env python3
+"""
+Simple publisher node with best practices implemented
+"""
+
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
+from std_msgs.msg import String
+
+
+class BestPracticePublisherNode(Node):
+    """
+    A publisher node implementing best practices
+    """
+    def __init__(self):
+        # Initialize with node name
+        super().__init__('best_practice_publisher')
+        
+        # Declare parameters with default values
+        self.declare_parameter('publish_rate', 1.0)  # Hz
+        self.declare_parameter('topic_name', 'chatter')
+        self.declare_parameter('message_prefix', 'Hello')
+        
+        # Get parameter values
+        publish_rate = self.get_parameter('publish_rate').value
+        topic_name = self.get_parameter('topic_name').value
+        message_prefix = self.get_parameter('message_prefix').value
+        
+        # Configure QoS profile
+        qos_profile = QoSProfile(
+            depth=10,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE
+        )
+        
+        # Create publisher with the configured topic name
+        self.publisher = self.create_publisher(String, topic_name, qos_profile)
+        
+        # Create timer with the configured rate
+        timer_period = 1.0 / publish_rate
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        
+        # Initialize counter and prefix
+        self.i = 0
+        self.prefix = message_prefix
+        
+        # Log initialization
+        self.get_logger().info(
+            f'Best practice publisher initialized: topic={topic_name}, '
+            f'rate={publish_rate}Hz'
+        )
+
+    def timer_callback(self):
+        """
+        Publish a message at regular intervals
+        """
+        msg = String()
+        msg.data = f'{self.prefix} World #{self.i}'
+        
+        # Publish the message
+        self.publisher.publish(msg)
+        
+        # Log the message
+        self.get_logger().info(f'Published: "{msg.data}"')
+        
+        # Increment counter
+        self.i += 1
+
+
+def main(args=None):
+    """
+    Main function with proper error handling
+    """
+    rclpy.init(args=args)
+    
+    try:
+        node = BestPracticePublisherNode()
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        print('Interrupted by user')
+    except Exception as e:
+        print(f'Error occurred: {e}')
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+## Diagrams
+
+### Node Communication Pattern
+
+```
+┌─────────────────┐    Topic: /chatter    ┌─────────────────┐
+│  Publisher      │ ────────────────────▶ │  Subscriber     │
+│  Node           │                       │  Node           │
+│                 │                       │                 │
+│  ┌───────────┐  │                       │  ┌───────────┐  │
+│  │ Timer     │  │                       │  │ Callback  │  │
+│  │ Callback  │──┼───────────────────────┼──┤ Processing│  │
+│  └───────────┘  │                       │  └───────────┘  │
+└─────────────────┘                       └─────────────────┘
+```
+
+### ROS 2 Node Lifecycle
+
+```
+┌─────────────┐
+│   Created   │
+└─────────────┘
+       │
+       ▼
+┌─────────────────┐
+│   Unconfigured  │
+└─────────────────┘
+       │
+       ▼
+┌─────────────────┐
+│     Inactive    │
+└─────────────────┘
+       │
+       ▼
+┌─────────────────┐
+│      Active     │
+└─────────────────┘
+       │
+       ▼
+┌─────────────────┐
+│    Finalized    │
+└─────────────────┘
+```
+
+## Learning Outcomes
+
+After completing this section, students will be able to:
+
+1. Create a basic ROS 2 node in Python with proper structure
+2. Implement publisher and subscriber nodes that communicate through topics
+3. Use ROS 2 command-line tools to monitor and debug nodes and topics
+4. Configure nodes with parameters and QoS settings
+5. Apply best practices for node design and error handling
+
+## Advanced Topics
+
+### Lifecycle Nodes
+Advanced implementations can use lifecycle nodes that provide better control over the node state and enable more sophisticated system management.
+
+### Composition
+ROS 2 supports composition, allowing multiple nodes to run within a single process for improved performance and resource usage.
+
+### Quality of Service (QoS)
+QoS settings allow fine-tuning of communication behavior to meet specific application requirements.
+
+## Further Reading
+
+- "ROS 2 Node Concepts" (ROS Documentation, 2025) [1]
+- "Best Practices for ROS 2 Python Development" (Open Robotics, 2025) [2]
+- "Quality of Service in ROS 2" (ROS Documentation, 2025) [3]
+
+---
+
+## References
+
+[1] Open Robotics. "ROS 2 Node Concepts." 2025. https://docs.ros.org/en/rolling/Concepts/About-Executables.html
+
+[2] Open Robotics. "Best Practices for ROS 2 Python Development." 2025. https://docs.ros.org/en/rolling/The-ROS2-Project/Contributing/Code-Style-Language-Versions.html
+
+[3] Open Robotics. "Quality of Service in ROS 2." 2025. https://docs.ros.org/en/rolling/Concepts/About-Quality-of-Service-Settings.html

@@ -1,0 +1,97 @@
+---
+id: chapter3-plan
+title: Chapter 3 Plan - Digital Twin
+---
+
+# Chapter 3: The Digital Twin (Gazebo & Unity)
+
+## Chapter Overview
+This chapter explores digital twin technology in robotics, focusing on simulation environments that enable safe, cost-effective development and testing of robotic systems. Students will learn to create and use digital twins using Gazebo Classic for physics-accurate simulation and Unity for high-fidelity visualization. The chapter covers essential concepts including world creation, sensor simulation, and the simulation-to-reality transfer.
+
+Digital twins represent a crucial paradigm in modern robotics development, enabling engineers to test algorithms, validate control strategies, and train AI systems in virtual environments before deploying on physical robots. This approach is particularly valuable for humanoid robotics, where the cost of failure can be high.
+
+## Learning Objectives
+After completing this chapter, students will be able to:
+1. Understand the concept of digital twins in robotics and their benefits
+2. Create Gazebo simulation environments with custom worlds and objects
+3. Simulate various sensor types (cameras, LIDAR, IMU, force/torque) with realistic characteristics
+4. Implement high-fidelity visualization using Unity for photorealistic simulation
+5. Establish communication between simulation environments and ROS 2
+6. Validate simulation fidelity against real-world robot behavior
+
+## Section Breakdown
+
+### Section 1: Digital Twin Concepts in Robotics
+- Definition and importance of digital twins
+- Key components and architecture
+- Benefits of digital twin technology
+- Simulation-to-reality transfer challenges
+- Examples in industrial and humanoid robotics
+- Architectural diagrams
+
+### Section 2: Gazebo World Creation and Simulation
+- Gazebo architecture and components
+- SDF (Simulation Description Format) basics
+- Creating indoor and outdoor environments
+- Physics simulation parameters and tuning
+- Gazebo-ROS 2 integration and launch files
+- Best practices for environment design
+
+### Section 3: Sensor Simulation in Robotics
+- Types of sensors in robotics (camera, LIDAR, IMU, force/torque)
+- Simulation fidelity requirements and noise modeling
+- Implementing realistic sensor models in Gazebo
+- Camera sensor simulation (RGB, depth, stereo)
+- LIDAR simulation (2D and 3D)
+- IMU and force/torque sensor implementation
+- Unity-based sensor simulation
+- Integration with ROS 2 message types
+
+### Section 4: Unity for High-Fidelity Visualization
+- Unity for robotics architecture and setup
+- Photorealistic rendering vs. Gazebo comparison
+- Unity-ROS 2 bridge configuration (ROS#)
+- Unity Perception Package for synthetic data
+- Creating high-fidelity environments
+- Advanced physics and custom sensor simulation
+- Integration with external systems
+- Cloud-based and VR simulation options
+
+### Section 5: Simulation Validation and Transfer
+- Techniques for validating simulation fidelity
+- Simulation-to-reality gap mitigation
+- Domain randomization for robust training
+- Performance metrics for simulation accuracy
+- Case studies of successful sim-to-real transfer
+
+## Estimated Length
+- Total word count: ~10,000-12,000 words
+- Reading time: 3-4 hours
+- Hands-on practice time: 4-6 hours
+
+## Prerequisites
+- Chapter 2: Understanding of ROS 2 architecture and communication
+- Basic understanding of robot kinematics and dynamics
+- Familiarity with 3D modeling concepts
+- Basic scripting knowledge (Python/C#)
+
+## Code Examples Included
+- Complete Gazebo world files (SDF)
+- URDF integration with Gazebo plugins
+- ROS 2 launch files for simulation
+- Unity C# scripts for sensor simulation
+- Custom message type definitions
+- Physics configuration examples
+
+## Required Assets
+- Sample robot URDF files
+- Gazebo world files
+- Unity 3D models and environments
+- Configuration files for sensors
+- Launch files for demonstration
+
+## Assessment Options
+- Create a custom Gazebo environment for a specific robot task
+- Implement sensor simulation and validate against real data
+- Design a Unity scene with ROS 2 integration
+- Compare simulation and real robot behavior for a simple task

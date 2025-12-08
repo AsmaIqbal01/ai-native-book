@@ -111,6 +111,7 @@ The website uses a custom robotics-themed color palette:
 - **Language**: TypeScript
 - **CSS**: Custom CSS with Infima framework
 - **Deployment**: GitHub Pages
+- **AI Agents**: Claude Agent SDK (for content management automation)
 
 ## 📝 Adding Content
 

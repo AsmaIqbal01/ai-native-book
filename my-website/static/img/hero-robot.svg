@@ -1,0 +1,102 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Grid -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1976d2" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+
+    <linearGradient id="robotGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1976d2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#42a5f5;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00e5ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#00e5ff;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+
+  <rect width="600" height="400" fill="url(#grid)"/>
+
+  <!-- Humanoid Robot -->
+  <g transform="translate(300, 100)">
+    <!-- Head with AI Brain -->
+    <ellipse cx="0" cy="0" rx="35" ry="40" fill="url(#robotGradient)"/>
+
+    <!-- Neural Network in Head -->
+    <circle cx="-10" cy="-5" r="3" fill="#00e5ff"/>
+    <circle cx="10" cy="-5" r="3" fill="#00e5ff"/>
+    <circle cx="0" cy="5" r="3" fill="#00e5ff"/>
+    <path d="M-10,-5 L0,5 M10,-5 L0,5" stroke="#00e5ff" stroke-width="1.5" opacity="0.6"/>
+
+    <!-- Eyes (Camera Sensors) -->
+    <circle cx="-12" cy="-8" r="4" fill="#fff" opacity="0.9"/>
+    <circle cx="12" cy="-8" r="4" fill="#fff" opacity="0.9"/>
+    <circle cx="-12" cy="-8" r="2" fill="#00e5ff"/>
+    <circle cx="12" cy="-8" r="2" fill="#00e5ff"/>
+
+    <!-- Antenna -->
+    <line x1="0" y1="-40" x2="0" y2="-55" stroke="#1976d2" stroke-width="2"/>
+    <circle cx="0" cy="-55" r="4" fill="#00e5ff">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Torso -->
+    <rect x="-40" y="45" width="80" height="90" rx="8" fill="url(#robotGradient)"/>
+
+    <!-- Chest Panel -->
+    <rect x="-25" y="60" width="50" height="60" rx="4" fill="#0d47a1" opacity="0.3"/>
+
+    <!-- Core Energy -->
+    <circle cx="0" cy="90" r="15" fill="none" stroke="#00e5ff" stroke-width="2" opacity="0.6"/>
+    <circle cx="0" cy="90" r="8" fill="#00e5ff" opacity="0.8">
+      <animate attributeName="r" values="8;10;8" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- Arms -->
+    <rect x="-55" y="55" width="12" height="60" rx="6" fill="#1565c0"/>
+    <rect x="43" y="55" width="12" height="60" rx="6" fill="#1565c0"/>
+
+    <!-- Forearms -->
+    <rect x="-55" y="115" width="12" height="50" rx="6" fill="#0d47a1"/>
+    <rect x="43" y="115" width="12" height="50" rx="6" fill="#0d47a1"/>
+
+    <!-- Hands -->
+    <circle cx="-49" cy="170" r="8" fill="#1976d2"/>
+    <circle cx="49" cy="170" r="8" fill="#1976d2"/>
+
+    <!-- Legs -->
+    <rect x="-30" y="135" width="18" height="70" rx="9" fill="#1565c0"/>
+    <rect x="12" y="135" width="18" height="70" rx="9" fill="#1565c0"/>
+
+    <!-- Lower Legs -->
+    <rect x="-30" y="205" width="18" height="50" rx="9" fill="#0d47a1"/>
+    <rect x="12" y="205" width="18" height="50" rx="9" fill="#0d47a1"/>
+
+    <!-- Feet -->
+    <ellipse cx="-21" cy="260" rx="15" ry="8" fill="#1976d2"/>
+    <ellipse cx="21" cy="260" rx="15" ry="8" fill="#1976d2"/>
+  </g>
+
+  <!-- Floating Data Particles -->
+  <circle cx="100" cy="150" r="3" fill="#00e5ff" opacity="0.6">
+    <animate attributeName="cy" values="150;120;150" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="500" cy="200" r="2" fill="#42a5f5" opacity="0.6">
+    <animate attributeName="cy" values="200;170;200" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="120" cy="300" r="2.5" fill="#1976d2" opacity="0.6">
+    <animate attributeName="cy" values="300;270;300" dur="2.8s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- Floating Code Symbols -->
+  <text x="80" y="100" font-family="monospace" font-size="14" fill="#1976d2" opacity="0.4">
+    &lt;AI/&gt;
+  </text>
+  <text x="480" y="120" font-family="monospace" font-size="14" fill="#42a5f5" opacity="0.4">
+    {ROS2}
+  </text>
+  <text x="520" y="300" font-family="monospace" font-size="14" fill="#1976d2" opacity="0.4">
+    [VLA]
+  </text>
+</svg>
