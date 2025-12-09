@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 2: The Robotic Nervous System (ROS 2)",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "Master ROS2 (Robot Operating System 2), the industry-standard middleware that serves as the nervous system connecting all components of modern robots."
+  }
+}

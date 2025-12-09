@@ -1,0 +1,8 @@
+{
+  "label": "Chapter 3: Digital Twin (Gazebo & Unity)",
+  "position": 4,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn to create and leverage digital twins - virtual replicas of physical robots that enable safe testing, rapid iteration, and synthetic data generation."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VLA Action Plan Schema",
+  "description": "JSON schema for safe, validated action plans in VLA systems",
+  "type": "object",
+  "required": ["task_type", "parameters", "safety_constraints", "preconditions"],
+  "properties": {
+    "task_type": {
+      "type": "string",
+      "enum": ["navigate", "approach", "align"],
+      "description": "High-level task type (NO low-level control allowed)"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Task-specific parameters",
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "Target location or object name"
+        },
+        "target_object": {
+          "type": "string",
+          "description": "Object to interact with"
+        },
+        "approach_distance": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 2.0,
+          "description": "Distance to maintain from target (meters)"
+        },
+        "final_distance": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 2.0,
+          "description": "Final distance from object (meters)"
+        },
+        "alignment_axis": {
+          "type": "string",
+          "enum": ["forward", "backward", "left", "right"],
+          "description": "Axis to align with target"
+        }
+      }
+    },
+    "safety_constraints": {
+      "type": "object",
+      "required": ["max_velocity", "collision_avoidance"],
+      "description": "Safety limits for task execution",
+      "properties": {
+        "max_velocity": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1.0,
+          "description": "Maximum linear velocity (m/s)"
+        },
+        "max_angular_velocity": {
+          "type": "number",
+          "minimum": 0.1,
+          "maximum": 1.0,
+          "description": "Maximum angular velocity (rad/s)"
+        },
+        "collision_avoidance": {
+          "type": "boolean",
+          "description": "Enable collision avoidance"
+        },
+        "workspace_bounds": {
+          "type": "object",
+          "properties": {
+            "x_min": {"type": "number"},
+            "x_max": {"type": "number"},
+            "y_min": {"type": "number"},
+            "y_max": {"type": "number"}
+          }
+        }
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "robot_localized",
+          "object_detected",
+          "path_clear",
+          "near_object",
+          "gripper_ready"
+        ]
+      },
+      "description": "Conditions that must be satisfied before execution"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "timestamp": {"type": "string"},
+        "planner": {"type": "string"},
+        "confidence": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    }
+  }
+}
