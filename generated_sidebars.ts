@@ -14,14 +14,14 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   // Main tutorial sidebar for AI-Native Robotics
   tutorialSidebar: [
-    'introduction.mdx',
+    '13-week-strategy.mdx',
     'book-introduction.mdx',
     'book-summary-roadmap.mdx',
     'glossary.mdx',
-    '13-week-strategy.mdx',
+    'introduction.mdx',
     {
       type: 'category',
-      label: '001. Physical AI Foundations',
+      label: '001. Chapter',
       collapsed: false,
       items: [
         'chapter1/physical-ai.mdx',
@@ -32,27 +32,17 @@ const sidebars: SidebarsConfig = {
         'chapter1/humanoid-landscape.mdx',
         {
           type: 'category',
-          label: '001-01. Archive',
+          label: 'Archive',
           collapsed: true,
           items: [
             'chapter1/archive/digital-to-physical.mdx',
-            {
-              type: 'category',
-              label: '2025-12-09',
-              collapsed: true,
-              items: [
-                'chapter1/archive/2025-12-09/humanoid-landscape.mdx',
-                'chapter1/archive/2025-12-09/sensor-systems.mdx',
-                'chapter1/archive/2025-12-09/what-is-physical-ai.mdx',
-              ],
-            },
           ],
         },
       ],
     },
     {
       type: 'category',
-      label: '002. ROS2 Basics',
+      label: '002. Chapter',
       collapsed: false,
       items: [
         'chapter2/ros2-architecture.mdx',
@@ -68,7 +58,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: '003. Simulation and Digital Twins',
+      label: '003. Chapter',
       collapsed: false,
       items: [
         'chapter3/digital-twin-concepts.mdx',
@@ -84,7 +74,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: '004. Advanced Robotics Integration',
+      label: '004. Chapter',
       collapsed: false,
       items: [
         'chapter4/isaac-overview.mdx',
@@ -103,22 +93,7 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
-      label: '004-01. VLA Systems',
-      collapsed: false,
-      items: [
-        'module4-vla/ch01-introduction/index.md',
-        'module4-vla/ch02-perception/index.md',
-        'module4-vla/ch03-language/index.md',
-        'module4-vla/ch04-architecture/index.md',
-        'module4-vla/ch05-planning/index.md',
-        'module4-vla/ch06-execution/index.md',
-        'module4-vla/ch07-scenarios/index.md',
-        'module4-vla/ch08-safety-ethics/index.md',
-      ],
-    },
-    {
-      type: 'category',
-      label: '005. AI and Robotics Applications',
+      label: '005. Chapter',
       collapsed: false,
       items: [
         'chapter5/perception-pipeline.mdx',
@@ -139,6 +114,85 @@ const sidebars: SidebarsConfig = {
         'chapter5/sensor-fusion-pipelines.mdx',
         'chapter5/natural-language-understanding.mdx',
         'chapter5/chapter5-plan.mdx',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Module 4 Vla',
+      collapsed: false,
+      items: [
+        {
+          type: 'category',
+          label: 'Ch01 Introduction',
+          collapsed: true,
+          items: [
+            'module4-vla/ch01-introduction/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch02 Perception',
+          collapsed: true,
+          items: [
+            'module4-vla/ch02-perception/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch03 Language',
+          collapsed: true,
+          items: [
+            'module4-vla/ch03-language/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch04 Architecture',
+          collapsed: true,
+          items: [
+            'module4-vla/ch04-architecture/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch05 Planning',
+          collapsed: true,
+          items: [
+            'module4-vla/ch05-planning/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch06 Execution',
+          collapsed: true,
+          items: [
+            'module4-vla/ch06-execution/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch07 Scenarios',
+          collapsed: true,
+          items: [
+            'module4-vla/ch07-scenarios/index.md',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Ch08 Safety Ethics',
+          collapsed: true,
+          items: [
+            'module4-vla/ch08-safety-ethics/index.md',
+          ],
+        },
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Modules',
+      collapsed: false,
+      items: [
+        'modules/digital-twin-module.md',
       ],
     },
     {
