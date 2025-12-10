@@ -1,0 +1,9 @@
+{
+  "label": "Resources",
+  "position": 999,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "Installation guides, setup instructions, and reference materials."
+  }
+}

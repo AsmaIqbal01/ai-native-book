@@ -44,12 +44,19 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({title, Svg, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className={clsx('col col--4')} role="article" aria-labelledby={`feature-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
+        <Svg
+          className={styles.featureSvg}
+          role="img"
+          aria-label={`${title} illustration`}
+          focusable="false"
+        />
       </div>
       <div className="text--center padding-horiz--md">
-        <Heading as="h3">{title}</Heading>
+        <Heading as="h3" id={`feature-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+          {title}
+        </Heading>
         <p>{description}</p>
       </div>
     </div>
@@ -58,8 +65,11 @@ function Feature({title, Svg, description}: FeatureItem) {
 
 export default function HomepageFeatures(): ReactNode {
   return (
-    <section className={styles.features}>
+    <section className={styles.features} aria-labelledby="features-title">
       <div className="container">
+        <Heading as="h2" id="features-title" className="visually-hidden">
+          Key Features of the Course
+        </Heading>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

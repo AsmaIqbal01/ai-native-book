@@ -1,0 +1,9 @@
+{
+  "label": "3. Language Understanding",
+  "position": 3,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Natural language processing, command parsing, and language grounding."
+  }
+}

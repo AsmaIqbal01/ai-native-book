@@ -1,0 +1,9 @@
+{
+  "label": "1. Introduction to VLA",
+  "position": 1,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Overview of Vision-Language-Action models and their role in robotics."
+  }
+}

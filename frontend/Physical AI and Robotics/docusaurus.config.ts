@@ -82,86 +82,90 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'AI-Native Robotics',
-      logo: {
-        alt: 'AI-Native Robotics Logo',
-        src: 'img/logo.svg',
-      },
+  title: 'AI-Native Robotics',
+  logo: {
+    alt: 'AI-Native Robotics Logo',
+    src: 'img/logo.svg',
+  },
+  items: [
+    {
+      type: 'docSidebar',
+      sidebarId: 'docsSidebar',
+      position: 'left',
+      label: 'Textbook',
+    },
+    {
+      type: 'doc',
+      docId: 'introduction',
+      position: 'left',
+      label: 'Get Started',
+    },
+    {to: '/blog', label: 'Lab Notes', position: 'left'},
+    {
+      href: 'https://github.com/AsmaIqbal01/ai-native-book',
+      label: 'GitHub',
+      position: 'right',
+    },
+  ],
+},
+footer: {
+  style: 'dark',
+  links: [
+    {
+      title: 'Learn',
       items: [
         {
-          type: 'docSidebar',
-          sidebarId: 'docsSidebar',
-          position: 'left',
-          label: 'Textbook',
-        },
-        {
-          type: 'doc',
-          docId: 'intro',
-          position: 'left',
           label: 'Get Started',
+          to: '/docs/introduction',
         },
-        {to: '/blog', label: 'Lab Notes', position: 'left'},
         {
-          href: 'https://github.com/AsmaIqbal01/ai-native-book',
+          label: 'Physical AI Fundamentals',
+          to: '/docs/chapter1/physical-ai',
+        },
+        {
+          label: 'ROS2 Basics',
+          to: '/docs/chapter2/ros2-intro',
+        },
+      ],
+    },
+    {
+      title: 'Community',
+      items: [
+        {
           label: 'GitHub',
-          position: 'right',
+          href: 'https://github.com/AsmaIqbal01/ai-native-book',
+        },
+        {
+          label: 'Discord',
+          href: 'https://discordapp.com/invite/docusaurus',
+        },
+        {
+          label: 'Twitter',
+          href: 'https://twitter.com/docusaurus',
         },
       ],
     },
-    footer: {
-      style: 'dark',
-      links: [
+    {
+      title: 'More',
+      items: [
         {
-          title: 'Learn',
-          items: [
-            {
-              label: 'Get Started',
-              to: '/docs/intro',
-            },
-            {
-              label: 'Physical AI Fundamentals',
-              to: '/docs/chapter1/physical-ai',
-            },
-            {
-              label: 'ROS2 Basics',
-              to: '/docs/chapter2/ros2-intro',
-            },
-          ],
+          label: 'Blog',
+          to: '/blog',
         },
         {
-          title: 'Resources',
-          items: [
-            {
-              label: 'GitHub Repository',
-              href: 'https://github.com/AsmaIqbal01/ai-native-book',
-            },
-            {
-              label: 'Lab Notes',
-              to: '/blog',
-            },
-            {
-              label: 'Examples & Code',
-              href: 'https://github.com/AsmaIqbal01/ai-native-book/tree/main/examples',
-            },
-          ],
+          label: 'Resources',
+          to: '/docs/resources/references',
         },
         {
-          title: 'Community',
-          items: [
-            {
-              label: 'GitHub Discussions',
-              href: 'https://github.com/AsmaIqbal01/ai-native-book/discussions',
-            },
-            {
-              label: 'Report Issues',
-              href: 'https://github.com/AsmaIqbal01/ai-native-book/issues',
-            },
-          ],
+          label: 'GitHub',
+          href: 'https://github.com/AsmaIqbal01/ai-native-book',
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Asma Iqbal. Built with Docusaurus.`,
     },
-    prism: {
+  ],
+  copyright: `Copyright © ${new Date().getFullYear()} AI-Native Robotics Book. Built with Docusaurus.`,
+},
+  prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
       additionalLanguages: ['python', 'bash', 'yaml', 'markup', 'cpp', 'cmake'],

@@ -11,58 +11,61 @@ import styles from './index.module.css';
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
   return (
-    <header className={clsx('hero', styles.heroBanner)}>
+    <header className={clsx('hero', styles.heroBanner)} role="banner">
       <div className="container">
-        <div className={styles.heroContent}>
+        <div className={styles.heroContent} role="presentation">
           <div className={styles.heroText}>
-            <div className={styles.badge}>
-              <span className={styles.badgeDot}></span>
+            <div className={styles.badge} aria-label="Robotics theme tag">
+              <span className={styles.badgeDot} aria-hidden="true"></span>
               Build the Future of Robotics
             </div>
-            <Heading as="h1" className={styles.heroTitle}>
+            <Heading as="h1" className={styles.heroTitle} id="main-title">
               Master AI-Native Robotics
             </Heading>
-            <p className={styles.heroSubtitle}>
+            <p className={styles.heroSubtitle} id="main-description">
               A comprehensive, hands-on textbook for building intelligent robots using ROS2,
               Digital Twins, NVIDIA Isaac, and Vision-Language-Action models.
             </p>
-            <div className={styles.heroButtons}>
+            <div className={styles.heroButtons} role="group" aria-label="Main navigation options">
               <Link
                 className="button button--primary button--lg"
-                to="/docs/intro">
+                to="/docs/intro"
+                aria-label="Start learning about AI-Native Robotics">
                 Start Learning
               </Link>
               <Link
                 className="button button--outline button--secondary button--lg"
-                to="/docs/chapter1/physical-ai">
+                to="/docs/chapter1/physical-ai"
+                aria-label="Explore book chapters">
                 Explore Chapters
               </Link>
             </div>
-            <div className={styles.heroStats}>
+            <div className={styles.heroStats} role="group" aria-label="Course statistics">
               <div className={styles.stat}>
-                <div className={styles.statNumber}>5</div>
+                <div className={styles.statNumber} aria-label="Number of chapters">5</div>
                 <div className={styles.statLabel}>Chapters</div>
               </div>
               <div className={styles.stat}>
-                <div className={styles.statNumber}>50+</div>
+                <div className={styles.statNumber} aria-label="Number of tutorials">50+</div>
                 <div className={styles.statLabel}>Tutorials</div>
               </div>
               <div className={styles.stat}>
-                <div className={styles.statNumber}>100%</div>
+                <div className={styles.statNumber} aria-label="Open source percentage">100%</div>
                 <div className={styles.statLabel}>Open Source</div>
               </div>
             </div>
           </div>
-          <div className={styles.heroImage}>
+          <div className={styles.heroImage} role="figure" aria-label="Robotic illustration">
             <img
               src="/ai-native-book/img/hero-robot.svg"
               alt="AI-Native Robotics Illustration"
               className={styles.heroRobot}
+              loading="eager"
             />
           </div>
         </div>
       </div>
-      <div className={styles.heroWave}>
+      <div className={styles.heroWave} aria-hidden="true">
         <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg">
           <path
             fill="currentColor"
@@ -86,18 +89,21 @@ function TechnologyStack() {
   ];
 
   return (
-    <section className={styles.techStack}>
+    <section className={styles.techStack} aria-labelledby="tech-stack-title">
       <div className="container">
         <div className={styles.sectionHeader}>
-          <Heading as="h2">Built on Industry-Leading Technologies</Heading>
+          <Heading as="h2" id="tech-stack-title">Built on Industry-Leading Technologies</Heading>
           <p>Learn the tools that power modern robotics companies</p>
         </div>
-        <div className={styles.techGrid}>
+        <div className={styles.techGrid} role="list">
           {technologies.map((tech, idx) => (
-            <div key={idx} className={styles.techCard}>
-              <div className={styles.techIcon}>{tech.icon}</div>
-              <div className={styles.techName}>{tech.name}</div>
-              <div className={styles.techDescription}>{tech.description}</div>
+            <div key={idx} className={styles.techCard} role="listitem">
+              <div className={styles.techIcon} aria-hidden="true">{tech.icon}</div>
+              <div className={styles.techName} id={`tech-${idx}-name`}>{tech.name}</div>
+              <div className={styles.techDescription}
+                   aria-describedby={`tech-${idx}-name`}>
+                {tech.description}
+              </div>
             </div>
           ))}
         </div>
@@ -141,22 +147,26 @@ function LearningPath() {
   ];
 
   return (
-    <section className={styles.learningPath}>
+    <section className={styles.learningPath} aria-labelledby="learning-path-title">
       <div className="container">
         <div className={styles.sectionHeader}>
-          <Heading as="h2">Your Learning Journey</Heading>
+          <Heading as="h2" id="learning-path-title">Your Learning Journey</Heading>
           <p>A structured path from fundamentals to advanced AI robotics</p>
         </div>
-        <div className={styles.timeline}>
+        <div className={styles.timeline} role="list">
           {chapters.map((chapter, idx) => (
-            <div key={idx} className={styles.timelineItem}>
+            <div key={idx} className={styles.timelineItem} role="listitem">
               <div className={styles.timelineMarker}>
-                <div className={styles.chapterNumber}>{chapter.number}</div>
+                <div
+                  className={styles.chapterNumber}
+                  aria-label={`Chapter ${chapter.number}`}>
+                  {chapter.number}
+                </div>
               </div>
               <div className={styles.timelineContent}>
                 <h3>{chapter.title}</h3>
                 <p>{chapter.description}</p>
-                <div className={styles.topicTags}>
+                <div className={styles.topicTags} aria-label="Chapter topics">
                   {chapter.topics.map((topic, i) => (
                     <span key={i} className={styles.topicTag}>{topic}</span>
                   ))}
@@ -172,23 +182,25 @@ function LearningPath() {
 
 function CallToAction() {
   return (
-    <section className={styles.cta}>
+    <section className={styles.cta} aria-labelledby="cta-title">
       <div className="container">
         <div className={styles.ctaContent}>
-          <Heading as="h2">Ready to Build Intelligent Robots?</Heading>
+          <Heading as="h2" id="cta-title">Ready to Build Intelligent Robots?</Heading>
           <p>
             Join thousands of students, researchers, and engineers learning to build
             the next generation of AI-powered robotic systems.
           </p>
-          <div className={styles.ctaButtons}>
+          <div className={styles.ctaButtons} role="group" aria-label="Final call to action">
             <Link
               className="button button--primary button--lg"
-              to="/docs/intro">
+              to="/docs/intro"
+              aria-label="Start your robotics learning journey now">
               Start Your Journey
             </Link>
             <Link
               className="button button--outline button--secondary button--lg"
-              href="https://github.com/AsmaIqbal01/ai-native-book">
+              href="https://github.com/AsmaIqbal01/ai-native-book"
+              aria-label="View project on GitHub">
               View on GitHub
             </Link>
           </div>

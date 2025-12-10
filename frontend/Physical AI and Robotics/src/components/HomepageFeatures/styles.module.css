@@ -1,11 +1,24 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 4rem 0;
   width: 100%;
+  background: var(--ifm-background-color, #f8fafc);
+  color: var(--ifm-font-color-base, #1e293b);
+}
+
+[data-theme='dark'] .features {
+  background: var(--ifm-background-surface-color, #0f172a);
+  color: var(--ifm-font-color-base, #f1f5f9);
 }
 
 .featureSvg {
   height: 200px;
   width: 200px;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
+
+.featureSvg:hover {
+  transform: scale(1.05);
 }

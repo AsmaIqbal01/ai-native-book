@@ -1,0 +1,9 @@
+{
+  "label": "VLA Deep Dive: Vision-Language-Action Architecture",
+  "position": 1,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Comprehensive exploration of Vision-Language-Action models, from perception pipelines to execution strategies."
+  }
+}

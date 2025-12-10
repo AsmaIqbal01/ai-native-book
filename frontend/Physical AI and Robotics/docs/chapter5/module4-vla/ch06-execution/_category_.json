@@ -1,0 +1,9 @@
+{
+  "label": "6. Action Execution",
+  "position": 6,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Motor control, action policies, and real-world execution."
+  }
+}
