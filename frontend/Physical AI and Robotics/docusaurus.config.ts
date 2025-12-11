@@ -15,11 +15,13 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://asmaiqbal01.github.io',
+  // Use VERCEL_URL for Vercel deployments, fallback to GitHub Pages
+  url: process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://asmaiqbal01.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  // Use '/' for local dev, '/ai-native-book/' for production
-  baseUrl: process.env.NODE_ENV === 'production' ? '/ai-native-book/' : '/',
+  // Vercel uses '/', GitHub Pages uses '/ai-native-book/'
+  baseUrl: process.env.VERCEL ? '/' : (process.env.NODE_ENV === 'production' ? '/ai-native-book/' : '/'),
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.

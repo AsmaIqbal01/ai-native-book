@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "./build",
+  "installCommand": "npm install",
+  "devCommand": "npm start",
+  "framework": null,
+  "rootDirectory": "frontend/Physical AI and Robotics"
+}
