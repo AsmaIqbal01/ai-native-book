@@ -5,26 +5,283 @@ title: Gazebo Installation
 
 # Gazebo Installation
 
-<!-- Add theory, examples, diagrams here -->
+Complete guide for installing Gazebo Classic and Gazebo for robotics simulation.
 
 ## Overview
 
-This guide covers installing Gazebo Classic on various platforms.
+Gazebo is a 3D robotics simulator that accurately simulates robots, sensors, and environments. This guide covers installation for various platforms.
+
+:::info
+For ROS 2 Humble, we use **Gazebo Classic (Gazebo 11)** or the newer **Gazebo (formerly Ignition)**.
+:::
 
 ## Ubuntu Installation
 
+### Method 1: Gazebo Classic (Recommended for ROS 2 Humble)
+
 ```bash
-# Installation steps for Ubuntu
+# Install Gazebo Classic 11
+sudo apt update
+sudo apt install -y gazebo11 libgazebo11-dev
+
+# Install ROS 2 Gazebo packages
+sudo apt install -y ros-humble-gazebo-ros-pkgs
+sudo apt install -y ros-humble-gazebo-ros2-control
+```
+
+### Method 2: New Gazebo (Fortress)
+
+```bash
+# Add Gazebo repository
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget https://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+
+# Install Gazebo Fortress
+sudo apt update
+sudo apt install -y gz-fortress
+
+# Install ROS 2 Gazebo bridge
+sudo apt install -y ros-humble-ros-gz
 ```
 
 ## WSL2 Installation
 
-<!-- WSL2-specific steps -->
+### Prerequisites
+
+1. **Install VcXsrv or X410** for GUI support on Windows
+   - Download VcXsrv: https://sourceforge.net/projects/vcxsrv/
+
+2. **Configure X Server**
+
+```bash
+# Add to ~/.bashrc
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+export LIBGL_ALWAYS_INDIRECT=1
+```
+
+### Install Gazebo on WSL2
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Gazebo Classic
+sudo apt install -y gazebo11 libgazebo11-dev
+
+# Install ROS 2 integration
+sudo apt install -y ros-humble-gazebo-ros-pkgs
+```
+
+### Launch VcXsrv
+
+1. Open VcXsrv
+2. Select "Multiple windows"
+3. Set display number: 0
+4. Start with "Disable access control" checked
 
 ## Docker Installation
 
-<!-- Docker-based installation -->
+### Using Official Gazebo Docker Image
+
+```bash
+# Pull Gazebo Classic image
+docker pull osrf/ros:humble-desktop-full
+
+# Run with GPU support (NVIDIA)
+docker run -it --rm \
+  --gpus all \
+  --env="DISPLAY" \
+  --env="QT_X11_NO_MITSHM=1" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  osrf/ros:humble-desktop-full \
+  bash
+```
+
+### Build Custom Dockerfile
+
+```dockerfile
+FROM osrf/ros:humble-desktop-full
+
+# Install Gazebo and dependencies
+RUN apt-get update && apt-get install -y \
+    gazebo11 \
+    libgazebo11-dev \
+    ros-humble-gazebo-ros-pkgs \
+    ros-humble-gazebo-ros2-control \
+    && rm -rf /var/lib/apt/lists/*
+
+# Setup environment
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+```
+
+## macOS Installation
+
+:::warning
+Gazebo has limited support on macOS. Docker is recommended.
+:::
+
+### Using Docker
+
+```bash
+# Install XQuartz for display
+brew install --cask xquartz
+
+# Allow connections from localhost
+xhost +localhost
+
+# Run Gazebo container
+docker run -it --rm \
+  -e DISPLAY=host.docker.internal:0 \
+  osrf/ros:humble-desktop-full \
+  gazebo
+```
 
 ## Verification
 
-<!-- How to verify installation -->
+### Test Gazebo Classic
+
+```bash
+# Launch Gazebo Classic
+gazebo --version
+
+# Launch with GUI
+gazebo
+
+# Launch with a world file
+gazebo worlds/willowgarage.world
+```
+
+### Test ROS 2 Integration
+
+```bash
+# Source ROS 2
+source /opt/ros/humble/setup.bash
+
+# Launch Gazebo with ROS 2 bridge
+ros2 launch gazebo_ros gazebo.launch.py
+```
+
+### Test with Sample Robot
+
+```bash
+# Install demo packages
+sudo apt install -y ros-humble-gazebo-ros-demos
+
+# Launch turtlebot3 world
+export TURTLEBOT3_MODEL=waffle
+ros2 launch gazebo_ros_demos spawn_turtlebot3.launch.py
+```
+
+## GPU Acceleration
+
+### NVIDIA GPU Setup
+
+```bash
+# Install NVIDIA drivers
+sudo apt install -y nvidia-driver-525
+
+# Verify GPU
+nvidia-smi
+
+# Enable GPU in Gazebo
+export SVGA_VGPU10=0
+```
+
+### AMD GPU Setup
+
+```bash
+# Install Mesa drivers
+sudo apt install -y mesa-utils
+
+# Verify OpenGL
+glxinfo | grep "OpenGL version"
+```
+
+## Common Configuration
+
+### Gazebo Resource Path
+
+```bash
+# Add model paths to ~/.bashrc
+echo "export GAZEBO_MODEL_PATH=/usr/share/gazebo-11/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
+echo "export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-11:$GAZEBO_RESOURCE_PATH" >> ~/.bashrc
+source ~/.bashrc
+```
+
+### Physics Engine Tuning
+
+Edit `~/.gazebo/gui.ini`:
+
+```ini
+[physics]
+max_step_size = 0.001
+real_time_factor = 1.0
+real_time_update_rate = 1000
+```
+
+## Troubleshooting
+
+### Issue: Black screen on launch
+
+**Solution**: Update graphics drivers and set environment variable
+```bash
+export SVGA_VGPU10=0
+gazebo
+```
+
+### Issue: "Cannot find model" error
+
+**Solution**: Set Gazebo model path
+```bash
+export GAZEBO_MODEL_PATH=/usr/share/gazebo-11/models
+```
+
+### Issue: Slow simulation on WSL2
+
+**Solution**: Use hardware acceleration
+```bash
+export LIBGL_ALWAYS_SOFTWARE=0
+export MESA_GL_VERSION_OVERRIDE=3.3
+```
+
+### Issue: Connection timeout
+
+**Solution**: Reset Gazebo
+```bash
+killall gzserver gzclient
+rm -rf ~/.gazebo
+```
+
+## Additional Plugins
+
+### Camera Plugin
+
+```bash
+sudo apt install -y ros-humble-gazebo-plugins
+```
+
+### Robot State Publisher
+
+```bash
+sudo apt install -y ros-humble-robot-state-publisher
+```
+
+### Control Plugins
+
+```bash
+sudo apt install -y ros-humble-gazebo-ros2-control
+sudo apt install -y ros-humble-ros2-control
+sudo apt install -y ros-humble-ros2-controllers
+```
+
+## Next Steps
+
+- Explore [Gazebo Tutorials](http://classic.gazebosim.org/tutorials)
+- Learn [URDF modeling](../chapter3/urdf-basics)
+- Build your first [robot simulation](../chapter3/first-simulation)
+
+## Further Reading
+
+- [Gazebo API Documentation](http://osrf-distributions.s3.amazonaws.com/gazebo/api/dev/index.html)
+- [ROS 2 Gazebo Integration Guide](https://github.com/ros-simulation/gazebo_ros_pkgs)
+- [Gazebo Model Database](https://github.com/osrf/gazebo_models)

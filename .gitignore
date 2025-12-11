@@ -206,6 +206,9 @@ public/
 *.log
 *.bak
 *.orig
+files_to_upload.json
+push_to_github.py
+upload_to_github.py
 
 # OS-specific
 .DS_Store

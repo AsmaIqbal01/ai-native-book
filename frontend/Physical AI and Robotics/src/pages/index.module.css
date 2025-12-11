@@ -201,6 +201,82 @@
   height: 60px;
 }
 
+/* ==================== 13 Weeks Plan ==================== */
+.weeksPlan {
+  padding: 5rem 0;
+  background: var(--ifm-background-color, var(--background-color));
+  color: var(--text-primary);
+  scroll-margin-top: 80px;
+}
+
+.weeksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.weekCard {
+  padding: 2rem;
+  background: var(--ifm-background-surface-color, var(--surface-color));
+  border-radius: var(--border-radius);
+  border: 1px solid var(--ifm-color-emphasis-200, var(--border-color));
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.weekCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.weekCard:hover::before {
+  transform: scaleX(1);
+}
+
+.weekCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.weekNumber {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: rgba(14, 165, 233, 0.1);
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.weekTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.weekTopics {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
 /* ==================== Technology Stack ==================== */
 .techStack {
   padding: 5rem 0;
@@ -499,6 +575,10 @@
 
   .heroRobot {
     max-width: 350px;
+  }
+
+  .weeksGrid {
+    grid-template-columns: 1fr;
   }
 
   .techGrid {

@@ -18,7 +18,8 @@ const config: Config = {
   url: 'https://asmaiqbal01.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/ai-native-book/',
+  // Use '/' for local dev, '/ai-native-book/' for production
+  baseUrl: process.env.NODE_ENV === 'production' ? '/ai-native-book/' : '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
@@ -41,33 +42,11 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          // Enable edit links to your GitHub repository
-          editUrl:
-            'https://github.com/AsmaIqbal01/ai-native-book/tree/main/my-website/',
           routeBasePath: 'docs',
           showLastUpdateTime: true,
           showLastUpdateAuthor: true,
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Enable edit links for blog posts
-          editUrl:
-            'https://github.com/AsmaIqbal01/ai-native-book/tree/main/my-website/',
-          // Blog configuration for robotics updates
-          blogTitle: 'Robotics Lab Notes',
-          blogDescription: 'Updates, tutorials, and insights on AI-Native Robotics',
-          blogSidebarTitle: 'Recent Posts',
-          blogSidebarCount: 10,
-          postsPerPage: 10,
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        blog: false, // Disable blog plugin
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -95,12 +74,15 @@ const config: Config = {
       label: 'Textbook',
     },
     {
-      type: 'doc',
-      docId: 'introduction',
+      to: '/translator',
+      label: 'Urdu Translator',
       position: 'left',
-      label: 'Get Started',
     },
-    {to: '/blog', label: 'Lab Notes', position: 'left'},
+    {
+      to: '/login',
+      label: 'Login',
+      position: 'right',
+    },
     {
       href: 'https://github.com/AsmaIqbal01/ai-native-book',
       label: 'GitHub',
@@ -148,10 +130,6 @@ footer: {
     {
       title: 'More',
       items: [
-        {
-          label: 'Blog',
-          to: '/blog',
-        },
         {
           label: 'Resources',
           to: '/docs/resources/references',

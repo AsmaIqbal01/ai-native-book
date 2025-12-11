@@ -29,8 +29,8 @@ function HomepageHeader() {
             <div className={styles.heroButtons} role="group" aria-label="Main navigation options">
               <Link
                 className="button button--primary button--lg"
-                to="/docs/intro"
-                aria-label="Start learning about AI-Native Robotics">
+                to="#weeks-plan"
+                aria-label="View the 13-week learning plan">
                 Start Learning
               </Link>
               <Link
@@ -75,6 +75,38 @@ function HomepageHeader() {
         </svg>
       </div>
     </header>
+  );
+}
+
+function WeeksPlan() {
+  const weeks = [
+    { week: '1-2', title: 'Foundations', topics: 'Physical AI concepts, Python refresher, Development environment setup' },
+    { week: '3-4', title: 'ROS2 Basics', topics: 'Nodes, Topics, Services, Launch files, Basic robot control' },
+    { week: '5-6', title: 'Sensors & Perception', topics: 'Camera integration, LiDAR processing, Sensor fusion' },
+    { week: '7-8', title: 'Simulation & Digital Twins', topics: 'Gazebo setup, URDF modeling, Sim-to-real transfer' },
+    { week: '9-10', title: 'NVIDIA Isaac Platform', topics: 'Isaac Sim, Isaac ROS packages, GPU acceleration' },
+    { week: '11-12', title: 'AI Integration', topics: 'Vision-Language-Action models, Multimodal learning' },
+    { week: '13', title: 'Capstone Project', topics: 'Build and deploy your own intelligent robot system' },
+  ];
+
+  return (
+    <section className={styles.weeksPlan} id="weeks-plan" aria-labelledby="weeks-plan-title">
+      <div className="container">
+        <div className={styles.sectionHeader}>
+          <Heading as="h2" id="weeks-plan-title">13-Week Learning Plan</Heading>
+          <p>A structured roadmap to master AI-Native Robotics from scratch</p>
+        </div>
+        <div className={styles.weeksGrid} role="list">
+          {weeks.map((item, idx) => (
+            <div key={idx} className={styles.weekCard} role="listitem">
+              <div className={styles.weekNumber}>Week {item.week}</div>
+              <h3 className={styles.weekTitle}>{item.title}</h3>
+              <p className={styles.weekTopics}>{item.topics}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -219,6 +251,7 @@ export default function Home(): ReactNode {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <WeeksPlan />
         <TechnologyStack />
         <LearningPath />
         <CallToAction />

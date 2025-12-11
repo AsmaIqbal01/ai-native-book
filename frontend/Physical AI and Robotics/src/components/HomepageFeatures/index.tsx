@@ -5,14 +5,14 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
+  image: string;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'Physical AI Fundamentals',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    image: require('@site/static/img/embeddedIntelligence.png').default,
     description: (
       <>
         Master the foundations of embodied intelligence - from digital AI to physical robots
@@ -22,7 +22,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'Hands-On with ROS2 & Gazebo',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    image: require('@site/static/img/ros2.png').default,
     description: (
       <>
         Build real robotic systems using ROS2, simulate with Gazebo & Unity,
@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
   },
   {
     title: 'AI-Powered Robotics',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    image: require('@site/static/img/Isaac.png').default,
     description: (
       <>
         Integrate NVIDIA Isaac, Vision-Language-Action models, and cutting-edge AI
@@ -42,15 +42,14 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, image, description}: FeatureItem) {
   return (
     <div className={clsx('col col--4')} role="article" aria-labelledby={`feature-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <div className="text--center">
-        <Svg
+        <img
+          src={image}
           className={styles.featureSvg}
-          role="img"
-          aria-label={`${title} illustration`}
-          focusable="false"
+          alt={`${title} illustration`}
         />
       </div>
       <div className="text--center padding-horiz--md">

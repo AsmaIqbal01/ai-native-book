@@ -1,50 +1,480 @@
 ---
 id: ros2-installation
-title: ROS2 Installation
+title: ROS 2 Installation
 ---
 
-# ROS2 Installation
+# ROS 2 Installation
 
-<!-- Add theory, examples, diagrams here -->
+Complete guide for installing ROS 2 Humble Hawksbill on various platforms.
 
 ## Overview
 
-This guide covers installing ROS 2 Humble Hawksbill on various platforms.
+ROS 2 (Robot Operating System 2) is the industry-standard middleware for robotics development. This guide covers installation for Ubuntu, WSL2, Docker, and macOS.
 
-## Ubuntu Installation
+:::info
+We use **ROS 2 Humble Hawksbill** - the latest LTS (Long Term Support) release supported until May 2027.
+:::
+
+## Ubuntu 22.04 Installation (Recommended)
+
+### Step 1: Set Locale
 
 ```bash
-# Add ROS 2 apt repository
-sudo apt update && sudo apt install -y software-properties-common
+# Ensure UTF-8 locale
+locale  # check for UTF-8
+
+sudo apt update && sudo apt install -y locales
+sudo locale-gen en_US en_US.UTF-8
+sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+locale  # verify settings
+```
+
+### Step 2: Setup Sources
+
+```bash
+# Enable Ubuntu Universe repository
+sudo apt install -y software-properties-common
 sudo add-apt-repository universe
 
 # Add ROS 2 GPG key
+sudo apt update && sudo apt install -y curl
 sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
 
-# Install ROS 2 Humble
-sudo apt update
-sudo apt install -y ros-humble-desktop
+# Add repository to sources list
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
 ```
 
-## WSL2 Installation
+### Step 3: Install ROS 2
 
-<!-- WSL2-specific steps -->
+```bash
+# Update package index
+sudo apt update
+sudo apt upgrade -y
+
+# Install ROS 2 Desktop (Full)
+sudo apt install -y ros-humble-desktop
+
+# Install development tools
+sudo apt install -y \
+  ros-dev-tools \
+  python3-colcon-common-extensions \
+  python3-rosdep \
+  python3-vcstool
+```
+
+### Step 4: Initialize rosdep
+
+```bash
+# Initialize rosdep
+sudo rosdep init
+rosdep update
+```
+
+### Step 5: Environment Setup
+
+```bash
+# Source ROS 2 setup (add to ~/.bashrc)
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+
+# Install argcomplete (optional - enables command auto-completion)
+sudo apt install -y python3-argcomplete
+```
+
+## WSL2 Installation (Windows)
+
+### Prerequisites
+
+1. **Enable WSL2**
+   ```powershell
+   # Run in PowerShell as Administrator
+   wsl --install
+   wsl --set-default-version 2
+   ```
+
+2. **Install Ubuntu 22.04**
+   ```powershell
+   wsl --install -d Ubuntu-22.04
+   ```
+
+3. **Update WSL Ubuntu**
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+
+### Install ROS 2 on WSL2
+
+Follow the same steps as Ubuntu installation above.
+
+### GUI Support (X Server)
+
+**Option 1: WSLg (Built-in - Windows 11)**
+- WSL GUI apps work automatically on Windows 11
+- No configuration needed
+
+**Option 2: VcXsrv (Windows 10)**
+
+1. **Download and Install VcXsrv**
+   - Download from: https://sourceforge.net/projects/vcxsrv/
+
+2. **Configure Display in WSL**
+   ```bash
+   # Add to ~/.bashrc
+   export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0.0
+   export LIBGL_ALWAYS_INDIRECT=1
+   ```
+
+3. **Launch VcXsrv**
+   - Multiple windows mode
+   - Display number: 0
+   - Start no client
+   - Disable access control: checked
+
+### Test GUI
+
+```bash
+# Install RViz2 for testing
+sudo apt install -y ros-humble-rviz2
+
+# Source ROS 2
+source /opt/ros/humble/setup.bash
+
+# Launch RViz2
+rviz2
+```
 
 ## Docker Installation
 
-<!-- Docker-based installation -->
+### Prerequisites
 
-## Environment Setup
+**Ubuntu/WSL2:**
+```bash
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+**macOS:**
+```bash
+# Install Docker Desktop
+brew install --cask docker
+```
+
+### Pull ROS 2 Docker Image
 
 ```bash
-# Source ROS 2 setup
-echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-source ~/.bashrc
+# Pull official ROS 2 Humble image
+docker pull osrf/ros:humble-desktop-full
+
+# Verify installation
+docker images | grep ros
+```
+
+### Run ROS 2 Container
+
+**Basic Container:**
+```bash
+docker run -it --rm osrf/ros:humble-desktop-full bash
+```
+
+**Container with GUI (X11):**
+```bash
+# Allow X server connection
+xhost +local:docker
+
+# Run with display
+docker run -it --rm \
+  --env="DISPLAY" \
+  --env="QT_X11_NO_MITSHM=1" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  --volume="$HOME/ros2_ws:/root/ros2_ws:rw" \
+  osrf/ros:humble-desktop-full \
+  bash
+```
+
+**Container with GPU Support:**
+```bash
+# NVIDIA GPU
+docker run -it --rm \
+  --gpus all \
+  --env="DISPLAY" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  osrf/ros:humble-desktop-full \
+  bash
+```
+
+### Create Custom Dockerfile
+
+```dockerfile
+FROM osrf/ros:humble-desktop-full
+
+# Install additional packages
+RUN apt-get update && apt-get install -y \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
+    ros-humble-turtlebot3* \
+    python3-pip \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip3 install numpy scipy matplotlib
+
+# Setup workspace
+RUN mkdir -p /root/ros2_ws/src
+WORKDIR /root/ros2_ws
+
+# Source ROS 2 on container start
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+CMD ["bash"]
+```
+
+**Build and Run:**
+```bash
+# Build custom image
+docker build -t my-ros2-humble .
+
+# Run custom container
+docker run -it --rm my-ros2-humble
+```
+
+## macOS Installation
+
+:::warning
+ROS 2 has limited official support on macOS. Docker is recommended.
+:::
+
+### Using Docker (Recommended)
+
+Follow the Docker installation steps above with macOS-specific setup:
+
+```bash
+# Install XQuartz for X11
+brew install --cask xquartz
+
+# Start XQuartz and allow connections
+xhost +localhost
+
+# Run ROS 2 with display
+docker run -it --rm \
+  -e DISPLAY=host.docker.internal:0 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  osrf/ros:humble-desktop-full
+```
+
+### Native Installation (Advanced)
+
+```bash
+# Install Homebrew dependencies
+brew install asio tinyxml2 eigen pcre poco
+
+# Build from source (requires significant setup)
+# See: https://docs.ros.org/en/humble/Installation/Alternatives/macOS-Development-Setup.html
 ```
 
 ## Verification
 
+### Test ROS 2 Installation
+
 ```bash
-# Check ROS 2 installation
+# Check ROS 2 version
 ros2 --version
+
+# List available packages
+ros2 pkg list
+
+# Run demo talker
+ros2 run demo_nodes_cpp talker
+
+# In another terminal, run listener
+ros2 run demo_nodes_cpp listener
 ```
+
+### Test C++ and Python Support
+
+```bash
+# Test C++ demo
+ros2 run demo_nodes_cpp talker
+
+# Test Python demo
+ros2 run demo_nodes_py talker
+```
+
+### Test RViz2 (GUI)
+
+```bash
+# Launch RViz2
+rviz2
+
+# Should open graphical window
+```
+
+## Workspace Setup
+
+### Create ROS 2 Workspace
+
+```bash
+# Create workspace directory
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws
+
+# Build workspace
+colcon build
+
+# Source workspace
+source install/setup.bash
+
+# Add to ~/.bashrc
+echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
+```
+
+### Clone Example Package
+
+```bash
+cd ~/ros2_ws/src
+
+# Clone examples
+git clone https://github.com/ros2/examples src/examples -b humble
+
+# Build
+cd ~/ros2_ws
+colcon build --packages-select examples_rclcpp_minimal_publisher
+
+# Test
+ros2 run examples_rclcpp_minimal_publisher publisher_member_function
+```
+
+## Essential Packages
+
+### Install Common ROS 2 Packages
+
+```bash
+# Navigation
+sudo apt install -y ros-humble-navigation2 ros-humble-nav2-bringup
+
+# Visualization
+sudo apt install -y ros-humble-rqt* ros-humble-rviz2
+
+# Robot State Publisher
+sudo apt install -y ros-humble-robot-state-publisher ros-humble-joint-state-publisher
+
+# TF2
+sudo apt install -y ros-humble-tf2-tools ros-humble-tf-transformations
+
+# Control
+sudo apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+
+# Gazebo Integration
+sudo apt install -y ros-humble-gazebo-ros-pkgs
+
+# CV Bridge
+sudo apt install -y ros-humble-cv-bridge ros-humble-vision-opencv
+
+# Serial
+sudo apt install -y ros-humble-serial-driver
+
+# Diagnostic Tools
+sudo apt install -y ros-humble-diagnostic-updater
+```
+
+## Environment Configuration
+
+### Useful Aliases
+
+Add to `~/.bashrc`:
+
+```bash
+# ROS 2 aliases
+alias cb='cd ~/ros2_ws && colcon build'
+alias cbs='cd ~/ros2_ws && colcon build --symlink-install'
+alias cbp='cd ~/ros2_ws && colcon build --packages-select'
+alias cs='cd ~/ros2_ws && source install/setup.bash'
+alias rosdep_ws='rosdep install --from-paths src --ignore-src -r -y'
+
+# Navigation aliases
+alias ws='cd ~/ros2_ws'
+alias ws_src='cd ~/ros2_ws/src'
+
+# Useful ROS 2 commands
+alias list_topics='ros2 topic list'
+alias list_nodes='ros2 node list'
+```
+
+### ROS Domain ID
+
+```bash
+# Set ROS_DOMAIN_ID to avoid interference (0-101, 215-232)
+echo "export ROS_DOMAIN_ID=42" >> ~/.bashrc
+source ~/.bashrc
+```
+
+## Troubleshooting
+
+### Issue: `ros2: command not found`
+
+**Solution**: Source the setup file
+```bash
+source /opt/ros/humble/setup.bash
+```
+
+### Issue: `No module named 'rclpy'`
+
+**Solution**: Install Python ROS packages
+```bash
+sudo apt install -y python3-rclpy ros-humble-rclpy
+```
+
+### Issue: Permission denied on `/dev/ttyUSB0`
+
+**Solution**: Add user to dialout group
+```bash
+sudo usermod -a -G dialout $USER
+sudo reboot
+```
+
+### Issue: `SetuptoolsDeprecationWarning`
+
+**Solution**: Update setuptools
+```bash
+pip3 install --upgrade setuptools
+```
+
+### Issue: Slow build times
+
+**Solution**: Use parallel build
+```bash
+colcon build --parallel-workers 4
+```
+
+### Issue: DDS communication issues
+
+**Solution**: Check network and firewall
+```bash
+# Allow multicast
+sudo ufw allow from 224.0.0.0/4
+sudo ufw allow from 239.0.0.0/8
+
+# Or disable firewall temporarily
+sudo ufw disable
+```
+
+## Next Steps
+
+- Complete [ROS 2 Tutorials](https://docs.ros.org/en/humble/Tutorials.html)
+- Learn [Creating a Workspace](../chapter2/ros2-workspace)
+- Build your [First ROS 2 Package](../chapter2/first-package)
+- Explore [ROS 2 Basics](../chapter2/ros2-intro)
+
+## Further Reading
+
+- [ROS 2 Documentation](https://docs.ros.org/en/humble/)
+- [ROS 2 Design](https://design.ros2.org/)
+- [ROS Discourse Forum](https://discourse.ros.org/)
+- [ROS 2 GitHub](https://github.com/ros2)
