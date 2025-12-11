@@ -225,7 +225,7 @@ function CallToAction() {
           <div className={styles.ctaButtons} role="group" aria-label="Final call to action">
             <Link
               className="button button--primary button--lg"
-              to="/docs/intro"
+              to="/docs/introduction"
               aria-label="Start your robotics learning journey now">
               Start Your Journey
             </Link>

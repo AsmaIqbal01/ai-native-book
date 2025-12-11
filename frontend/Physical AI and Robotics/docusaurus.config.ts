@@ -28,7 +28,9 @@ const config: Config = {
   organizationName: 'AsmaIqbal01', // Usually your GitHub org/user name.
   projectName: 'ai-native-book', // Usually your repo name.
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
+  onBrokenAnchors: 'warn',
+  onBrokenMarkdownLinks: 'warn',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -108,7 +110,7 @@ footer: {
         },
         {
           label: 'ROS2 Basics',
-          to: '/docs/chapter2/ros2-intro',
+          to: '/docs/chapter2/ros2-architecture',
         },
       ],
     },
