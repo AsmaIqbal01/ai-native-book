@@ -35,7 +35,7 @@ This chapter demonstrates complete VLA pipelines in Gazebo and Isaac Sim, includ
 # TODO: Launch commands for Isaac Sim
 ```
 
-**World Files**: See [scenarios/](./code-examples/scenarios/)
+**World Files**: See [scenarios/](code-examples/scenarios/index.md)
 
 ---
 
@@ -121,4 +121,4 @@ ros2 launch vla_system find_cube.launch.py
 
 ## Next Chapter
 
-[Chapter 8: Safety, Ethics, and Limitations →](../ch08-safety-ethics/index.md)
+[Chapter 8: Safety, Ethics, and Limitations →](/docs/chapter5/module4-vla/ch08-safety-ethics/)

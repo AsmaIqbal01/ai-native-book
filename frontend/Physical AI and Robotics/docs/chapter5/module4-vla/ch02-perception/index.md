@@ -55,7 +55,7 @@ This chapter covers the perception pipeline for VLA systems, including RGB proce
 # TODO: OpenCV image processing examples
 ```
 
-**Code Example**: See [rgb_processor.py](./code-examples/rgb_processor.py)
+**Code Example**: See [rgb_processor.py](code-examples/rgb_processor.py)
 
 ---
 
@@ -73,7 +73,7 @@ This chapter covers the perception pipeline for VLA systems, including RGB proce
 # TODO: Example of combining RGB and depth
 ```
 
-**Code Example**: See [depth_processor.py](./code-examples/depth_processor.py)
+**Code Example**: See [depth_processor.py](code-examples/depth_processor.py)
 
 ---
 
@@ -91,7 +91,7 @@ This chapter covers the perception pipeline for VLA systems, including RGB proce
 # TODO: Example using pretrained MobileNet for segmentation
 ```
 
-**Code Example**: See [segmentation_node.py](./code-examples/segmentation_node.py)
+**Code Example**: See [segmentation_node.py](code-examples/segmentation_node.py)
 
 ---
 
@@ -141,4 +141,4 @@ This chapter covers the perception pipeline for VLA systems, including RGB proce
 
 ## Next Chapter
 
-[Chapter 3: Language Understanding and Command Parsing →](../ch03-language/index.md)
+[Chapter 3: Language Understanding and Command Parsing →](/docs/chapter5/module4-vla/ch03-language/)

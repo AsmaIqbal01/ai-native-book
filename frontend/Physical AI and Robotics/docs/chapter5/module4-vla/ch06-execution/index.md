@@ -55,9 +55,9 @@ import py_trees
 <!-- TODO: Content from T094-T096 - Basic behaviors -->
 
 **Code Examples**:
-- [navigate.py](./code-examples/navigate.py)
-- [approach_object.py](./code-examples/approach_object.py)
-- [align_gripper.py](./code-examples/align_gripper.py)
+- [navigate.py](code-examples/navigate.py)
+- [approach_object.py](code-examples/approach_object.py)
+- [align_gripper.py](code-examples/align_gripper.py)
 
 ---
 
@@ -65,7 +65,7 @@ import py_trees
 
 <!-- TODO: Content from T097 - Multi-step tasks -->
 
-**Code Example**: See [composite_behaviors.py](./code-examples/composite_behaviors.py)
+**Code Example**: See [composite_behaviors.py](code-examples/composite_behaviors.py)
 
 ---
 
@@ -73,7 +73,7 @@ import py_trees
 
 <!-- TODO: Content from T098 - py_trees + ROS 2 actions -->
 
-**Code Example**: See [vla_executor.py](./code-examples/vla_executor.py)
+**Code Example**: See [vla_executor.py](code-examples/vla_executor.py)
 
 ---
 
@@ -92,4 +92,4 @@ import py_trees
 
 ## Next Chapter
 
-[Chapter 7: Simulation Scenarios and Integration →](../ch07-scenarios/index.md)
+[Chapter 7: Simulation Scenarios and Integration →](/docs/chapter5/module4-vla/ch07-scenarios/)

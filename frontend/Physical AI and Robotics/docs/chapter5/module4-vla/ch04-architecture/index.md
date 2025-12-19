@@ -74,7 +74,7 @@ class ExecutionInterface:
     """
 ```
 
-**Code Example**: See [vla_interfaces.py](./code-examples/vla_interfaces.py)
+**Code Example**: See [vla_interfaces.py](code-examples/vla_interfaces.py)
 
 ---
 
@@ -86,7 +86,7 @@ class ExecutionInterface:
 
 <!-- TODO: When to use each communication pattern -->
 
-**Code Examples**: See service and message definitions in [code-examples/](./code-examples/)
+**Code Examples**: See service and message definitions in [code-examples/](code-examples/index.md)
 
 ---
 
@@ -105,4 +105,4 @@ class ExecutionInterface:
 
 ## Next Chapter
 
-[Chapter 5: High-Level Task Planning with LLMs →](../ch05-planning/index.md)
+[Chapter 5: High-Level Task Planning with LLMs →](/docs/chapter5/module4-vla/ch05-planning/)

@@ -217,6 +217,6 @@ By the end of this chapter, students will be able to:
 
 ## Next Chapter
 
-[Chapter 2: Robot Perception Pipeline for VLA →](../ch02-perception/index.md)
+[Chapter 2: Robot Perception Pipeline for VLA →](/docs/chapter5/module4-vla/ch02-perception/)
 
 Learn how to process visual inputs (RGB, depth, segmentation) for VLA systems using ROS 2.

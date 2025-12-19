@@ -29,7 +29,7 @@ This chapter covers natural language interpretation for VLA systems, including c
 
 <!-- TODO: Content from T030 - Command parsing techniques -->
 
-**Code Example**: See [command_parser.py](./code-examples/command_parser.py)
+**Code Example**: See [command_parser.py](code-examples/command_parser.py)
 
 ---
 
@@ -51,7 +51,7 @@ UNSAFE_KEYWORDS = ['force', 'torque', 'joint', 'velocity', ...]
 SAFE_ACTIONS = ['navigate', 'approach', 'align', ...]
 ```
 
-**Code Example**: See [safety_filter.py](./code-examples/safety_filter.py)
+**Code Example**: See [safety_filter.py](code-examples/safety_filter.py)
 
 ---
 
@@ -93,4 +93,4 @@ SAFE_ACTIONS = ['navigate', 'approach', 'align', ...]
 
 ## Next Chapter
 
-[Chapter 4: VLA System Architecture →](../ch04-architecture/index.md)
+[Chapter 4: VLA System Architecture →](/docs/chapter5/module4-vla/ch04-architecture/)

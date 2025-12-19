@@ -52,9 +52,9 @@ if plan.requires_approval:
 ```
 
 **Code Examples**:
-- [constraint_validator.py](./code-examples/constraint_validator.py)
-- [emergency_stop.py](./code-examples/emergency_stop.py)
-- [audit_logger.py](./code-examples/audit_logger.py)
+- [constraint_validator.py](code-examples/constraint_validator.py)
+- [emergency_stop.py](code-examples/emergency_stop.py)
+- [audit_logger.py](code-examples/audit_logger.py)
 
 ---
 
@@ -91,7 +91,7 @@ if plan.requires_approval:
 
 <!-- TODO: How to handle each failure mode -->
 
-**Code Example**: See [edge_case_tests.py](./code-examples/edge_case_tests.py)
+**Code Example**: See [edge_case_tests.py](code-examples/edge_case_tests.py)
 
 ---
 
@@ -165,6 +165,6 @@ Congratulations! You've completed Module 4 on Vision-Language-Action Systems. Yo
 
 ## Course Navigation
 
-- [← Chapter 7: Simulation Scenarios](../ch07-scenarios/index.md)
-- [↑ Module 4 Home](../index.md)
-- [→ Course Conclusion](../../conclusion.md)
+- [← Chapter 7: Simulation Scenarios](/docs/chapter5/module4-vla/ch07-scenarios/)
+- [↑ Module 4 Home](/docs/chapter5/vla-introduction)
+- [→ Course Conclusion](/docs/chapter5/vla-conclusion)

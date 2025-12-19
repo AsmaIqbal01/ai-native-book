@@ -46,7 +46,7 @@ This chapter covers using LLMs for safe high-level robot planning, JSON schema v
 }
 ```
 
-**Full Schema**: See [plan_schema.json](./code-examples/plan_schema.json)
+**Full Schema**: See [plan_schema.json](code-examples/plan_schema.json)
 
 ---
 
@@ -66,7 +66,7 @@ Output JSON with fields: task_type, parameters, safety_constraints, precondition
 Valid task_types: ["navigate", "approach", "align"]
 ```
 
-**Code Example**: See [llm_planner.py](./code-examples/llm_planner.py)
+**Code Example**: See [llm_planner.py](code-examples/llm_planner.py)
 
 ---
 
@@ -90,7 +90,7 @@ Valid task_types: ["navigate", "approach", "align"]
 # TODO: Template-based mock responses
 ```
 
-**Code Example**: See [mock_planner.py](./code-examples/mock_planner.py)
+**Code Example**: See [mock_planner.py](code-examples/mock_planner.py)
 
 ---
 
@@ -98,7 +98,7 @@ Valid task_types: ["navigate", "approach", "align"]
 
 <!-- TODO: Content from T086 - Safety validator -->
 
-**Code Example**: See [safety_validator.py](./code-examples/safety_validator.py)
+**Code Example**: See [safety_validator.py](code-examples/safety_validator.py)
 
 ---
 
@@ -111,4 +111,4 @@ Valid task_types: ["navigate", "approach", "align"]
 
 ## Next Chapter
 
-[Chapter 6: Action Execution and Behavioral Control →](../ch06-execution/index.md)
+[Chapter 6: Action Execution and Behavioral Control →](/docs/chapter5/module4-vla/ch06-execution/)
