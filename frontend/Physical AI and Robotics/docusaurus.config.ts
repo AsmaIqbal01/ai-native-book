@@ -21,7 +21,8 @@ const config: Config = {
     : 'https://asmaiqbal01.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // Vercel uses '/', GitHub Pages uses '/ai-native-book/'
-  baseUrl: process.env.VERCEL ? '/' : (process.env.NODE_ENV === 'production' ? '/ai-native-book/' : '/'),
+  // For deployment parity: localhost and GitHub Pages both use '/ai-native-book/'
+  baseUrl: process.env.VERCEL ? '/' : '/ai-native-book/',
 
   // Trailing slash behavior - important for GitHub Pages
   trailingSlash: false,
