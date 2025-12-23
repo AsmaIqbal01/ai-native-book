@@ -5,7 +5,7 @@ Defines Pydantic models for inter-agent communication.
 Each agent has clearly defined input/output types to ensure type safety.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Dict, Any, Literal
 
 
@@ -91,6 +91,8 @@ class ErrorClassification(BaseModel):
 
 class ErrorRecoveryInput(BaseModel):
     """Input for ErrorRecoveryAgent."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     exception: Exception = Field(..., description="Original exception")
     context: Dict[str, Any] = Field(default_factory=dict, description="Error context (agent, input, etc.)")
 
