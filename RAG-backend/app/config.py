@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     # CORS Configuration
     cors_origins: str = "*"  # Comma-separated list of allowed origins
 
+    # Feature Flags
+    use_multi_agent_system: bool = False  # Enable multi-agent architecture (FR-004 to FR-008)
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

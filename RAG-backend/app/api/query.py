@@ -10,11 +10,14 @@ from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from pydantic import ValidationError
 from app.models.schemas import QueryRequest, QueryResponse
+from app.models.agent_types import OrchestratorInput
 from app.services.mode_detector import detect_mode
 from app.services.context_builder import build_context_normal_rag, build_context_selected_text
 from app.services.embedder import EmbeddingService
 from app.services.retriever import RetrieverService
 from app.agents.rag_agent import get_agent
+from app.agents.rag_chat_agent import RAGChatAgent
+from app.config import settings
 from app.db.neon_client import get_pool
 from app.utils.logging import get_logger
 import uuid
@@ -28,6 +31,10 @@ logger = get_logger(__name__)
 async def query(request: QueryRequest):
     """
     Process a RAG query with dual-mode support.
+
+    Supports two architectures via feature flag:
+    - Legacy: Monolithic RAGAgent (default)
+    - Multi-Agent: 5-agent system (FR-004 to FR-008)
 
     Modes:
     - normal_rag: Embed question → search Qdrant → RAG
@@ -50,7 +57,83 @@ async def query(request: QueryRequest):
         "chapter": request.chapter,
         "top_k": request.top_k,
         "has_selected_text": bool(request.selected_text),
+        "using_multi_agent": settings.use_multi_agent_system,
     })
+
+    # ========================================================================
+    # FEATURE FLAG: Multi-Agent System (FR-004 to FR-008)
+    # ========================================================================
+    if settings.use_multi_agent_system:
+        logger.info("Using multi-agent architecture")
+
+        # Use new multi-agent orchestrator
+        orchestrator = RAGChatAgent()
+        orchestrator_input = OrchestratorInput(
+            question=request.question,
+            selected_text=request.selected_text,
+            chapter=request.chapter,
+            top_k=request.top_k
+        )
+
+        try:
+            result = await orchestrator.run(orchestrator_input)
+
+            # Calculate latency
+            end_time = datetime.utcnow()
+            latency_ms = int((end_time - start_time).total_seconds() * 1000)
+
+            # Log query to Neon
+            try:
+                pool = await get_pool()
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        INSERT INTO query_logs (
+                            query_id, question, mode, answer, chunks_used,
+                            latency_ms, created_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7)
+                        """,
+                        str(uuid.uuid4()),
+                        request.question,
+                        result.mode,
+                        result.answer,
+                        result.metadata.get("chunks_retrieved", 0),
+                        latency_ms,
+                        start_time,
+                    )
+            except Exception as e:
+                logger.error(f"Failed to log query: {e}")
+
+            # Add latency to metadata
+            result.metadata["latency_ms"] = latency_ms
+
+            logger.info("Multi-agent query completed", {
+                "mode": result.mode,
+                "latency_ms": latency_ms,
+                "provider_used": result.metadata.get("provider_used")
+            })
+
+            return QueryResponse(
+                answer=result.answer,
+                mode=result.mode,
+                citations=result.citations,
+                metadata=result.metadata
+            )
+
+        except HTTPException:
+            raise  # Re-raise HTTP exceptions from ErrorRecoveryAgent
+        except Exception as e:
+            logger.error(f"Multi-agent orchestration failed: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error during query processing: {str(e)}"
+            )
+
+    # ========================================================================
+    # LEGACY SYSTEM (Monolithic RAGAgent)
+    # ========================================================================
+    logger.info("Using legacy monolithic agent")
 
     # Step 1: Detect query mode
     mode = detect_mode(request.selected_text)
