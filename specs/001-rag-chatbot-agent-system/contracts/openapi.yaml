@@ -1,0 +1,271 @@
+openapi: 3.0.3
+info:
+  title: RAG Chatbot API
+  description: |
+    REST API for RAG-based documentation chatbot with agent orchestration.
+
+    **Features**:
+    - Document-grounded Q&A (no hallucination)
+    - Ephemeral sessions (no persistence)
+    - Graceful error handling
+
+    **Architecture**:
+    - Backend: FastAPI + OpenAI Agents SDK
+    - Vector DB: Qdrant
+    - LLM: OpenAI GPT-4
+  version: 1.0.0
+  contact:
+    name: Asma Iqbal
+    email: azeecreations1@gmail.com
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://your-space.hf.space
+    description: Production (Hugging Face Spaces)
+
+tags:
+  - name: health
+    description: System health monitoring
+  - name: query
+    description: RAG query execution
+  - name: metadata
+    description: Documentation metadata
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Health check endpoint (FR-001)
+      description: Returns backend service status and Qdrant connection health
+      operationId: healthCheck
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: System is degraded or unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /query:
+    post:
+      tags: [query]
+      summary: Process RAG query (FR-002)
+      description: |
+        Processes user question through agent pipeline:
+        1. QueryRouter validates input
+        2. QdrantRetrieval searches documentation
+        3. AnswerSynthesis generates grounded response
+        4. ErrorRecovery handles failures
+
+        Returns answer with source attribution or user-safe error message.
+      operationId: processQuery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '200':
+          description: Query processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid query (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal error (error recovery engaged)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /chapters:
+    get:
+      tags: [metadata]
+      summary: Get documentation chapters metadata (FR-003)
+      description: Returns list of available chapters and sections for context
+      operationId: getChapters
+      responses:
+        '200':
+          description: Chapters metadata retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChaptersResponse'
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          description: Overall system health
+        timestamp:
+          type: string
+          format: date-time
+          description: Health check timestamp
+        qdrant_status:
+          type: string
+          enum: [connected, disconnected, error]
+          description: Qdrant connection status
+        qdrant_collection_count:
+          type: integer
+          description: Number of collections in Qdrant
+        llm_status:
+          type: string
+          enum: [available, unavailable]
+          description: LLM service availability
+      example:
+        status: healthy
+        timestamp: "2025-12-20T10:30:00Z"
+        qdrant_status: connected
+        qdrant_collection_count: 1
+        llm_status: available
+
+    QueryRequest:
+      type: object
+      required:
+        - question
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 10000
+          description: User's question about documentation
+        session_id:
+          type: string
+          format: uuid
+          description: Optional session identifier (not used for persistence)
+      example:
+        question: "What is ROS 2 and how does it differ from ROS 1?"
+        session_id: "550e8400-e29b-41d4-a716-446655440000"
+
+    QueryResponse:
+      type: object
+      required:
+        - answer
+        - sources
+      properties:
+        answer:
+          type: string
+          description: Generated answer grounded in documentation
+        sources:
+          type: array
+          items:
+            type: string
+          description: List of source references (chapter/section)
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Optional confidence score (based on retrieval scores)
+        processing_time_ms:
+          type: number
+          format: float
+          description: Total processing time in milliseconds
+      example:
+        answer: "ROS 2 is a robotics middleware framework that improves upon ROS 1 with better real-time support, security, and multi-platform compatibility. Key differences include DDS-based communication, improved build system (colcon), and native support for Python 3 and C++17."
+        sources:
+          - "intro/what-is-ros2"
+          - "basics/ros1-vs-ros2"
+        confidence: 0.95
+        processing_time_ms: 1245.3
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - retryable
+      properties:
+        error:
+          type: string
+          enum: [network, database, llm, validation, agent, unknown]
+          description: Error type classification
+        message:
+          type: string
+          description: User-safe error message (no stack traces)
+        retryable:
+          type: boolean
+          description: Whether the request can be retried
+        request_id:
+          type: string
+          description: Request ID for error tracking
+      example:
+        error: database
+        message: "The assistant is temporarily unavailable. Please try again later."
+        retryable: true
+        request_id: "req-abc123"
+
+    ChaptersResponse:
+      type: object
+      required:
+        - chapters
+      properties:
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Chapter'
+        total_count:
+          type: integer
+          description: Total number of chapters
+      example:
+        chapters:
+          - id: "intro"
+            title: "Introduction to Physical AI"
+            sections: ["what-is-physical-ai", "history", "applications"]
+          - id: "ros2-basics"
+            title: "ROS 2 Fundamentals"
+            sections: ["installation", "core-concepts", "first-node"]
+        total_count: 2
+
+    Chapter:
+      type: object
+      required:
+        - id
+        - title
+        - sections
+      properties:
+        id:
+          type: string
+          description: Chapter identifier
+        title:
+          type: string
+          description: Human-readable chapter title
+        sections:
+          type: array
+          items:
+            type: string
+          description: List of section identifiers
+        url:
+          type: string
+          format: uri
+          description: URL to chapter in documentation
+      example:
+        id: "intro"
+        title: "Introduction to Physical AI"
+        sections: ["what-is-physical-ai", "history", "applications"]
+        url: "/docs/intro"
+
+  securitySchemes: {}
+
+security: []

@@ -1,0 +1,46 @@
+{
+  "link.title.Learn": {
+    "message": "سیکھیں",
+    "description": "The title of the footer links column with title=Learn in the footer"
+  },
+  "link.title.Community": {
+    "message": "کمیونٹی",
+    "description": "The title of the footer links column with title=Community in the footer"
+  },
+  "link.title.More": {
+    "message": "مزید",
+    "description": "The title of the footer links column with title=More in the footer"
+  },
+  "link.item.label.Get Started": {
+    "message": "شروع کریں",
+    "description": "The label of footer link with label=Get Started linking to /docs/introduction"
+  },
+  "link.item.label.Physical AI Fundamentals": {
+    "message": "فزیکل AI کی بنیادی باتیں",
+    "description": "The label of footer link with label=Physical AI Fundamentals linking to /docs/chapter1/physical-ai"
+  },
+  "link.item.label.ROS2 Basics": {
+    "message": "ROS2 کی بنیادی باتیں",
+    "description": "The label of footer link with label=ROS2 Basics linking to /docs/chapter2/ros2-architecture"
+  },
+  "link.item.label.GitHub": {
+    "message": "گٹ ہب",
+    "description": "The label of footer link with label=GitHub linking to https://github.com/AsmaIqbal01/ai-native-book"
+  },
+  "link.item.label.Discord": {
+    "message": "ڈسکارڈ",
+    "description": "The label of footer link with label=Discord linking to https://discordapp.com/invite/docusaurus"
+  },
+  "link.item.label.Twitter": {
+    "message": "ٹویٹر",
+    "description": "The label of footer link with label=Twitter linking to https://twitter.com/docusaurus"
+  },
+  "link.item.label.Resources": {
+    "message": "وسائل",
+    "description": "The label of footer link with label=Resources linking to /docs/resources/references"
+  },
+  "copyright": {
+    "message": "Copyright © 2025 AI-Native روبوٹکس کتاب۔ Docusaurus کے ساتھ تعمیر شدہ۔",
+    "description": "The footer copyright"
+  }
+}

@@ -1,24 +1,24 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 4rem 0;
+  padding: 2rem 0;
   width: 100%;
-  background: var(--ifm-background-color, #f8fafc);
-  color: var(--ifm-font-color-base, #1e293b);
 }
 
-[data-theme='dark'] .features {
-  background: var(--ifm-background-surface-color, #0f172a);
-  color: var(--ifm-font-color-base, #f1f5f9);
+.featureIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
 }
 
-.featureSvg {
-  height: 200px;
-  width: 200px;
-  margin: 0 auto;
-  transition: transform 0.3s ease;
+.features h3 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-.featureSvg:hover {
-  transform: scale(1.05);
+.features p {
+  color: var(--ifm-color-emphasis-700);
+}
+
+[data-theme='dark'] .features p {
+  color: var(--ifm-color-emphasis-600);
 }

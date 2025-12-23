@@ -23,6 +23,9 @@ const config: Config = {
   // Vercel uses '/', GitHub Pages uses '/ai-native-book/'
   baseUrl: process.env.VERCEL ? '/' : (process.env.NODE_ENV === 'production' ? '/ai-native-book/' : '/'),
 
+  // Trailing slash behavior - important for GitHub Pages
+  trailingSlash: false,
+
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'AsmaIqbal01', // Usually your GitHub org/user name.
@@ -30,14 +33,30 @@ const config: Config = {
 
   onBrokenLinks: 'warn',
   onBrokenAnchors: 'warn',
-  onBrokenMarkdownLinks: 'warn',
 
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
+
+  // Internationalization configuration for English and Urdu
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en', 'ur'],
+    localeConfigs: {
+      en: {
+        label: 'English',
+        direction: 'ltr',
+        htmlLang: 'en-US',
+      },
+      ur: {
+        label: 'اردو',
+        direction: 'rtl',
+        htmlLang: 'ur',
+        path: 'ur',
+      },
+    },
   },
 
   presets: [
@@ -58,6 +77,25 @@ const config: Config = {
     ],
   ],
 
+  plugins: [
+    async function myPlugin(context, options) {
+      return {
+        name: 'postcss-tailwind-plugin',
+        configurePostCss(postcssOptions) {
+          // Return the modified config
+          return {
+            ...postcssOptions,
+            plugins: [
+              require('@tailwindcss/postcss'),
+              require('autoprefixer'),
+              ...(postcssOptions.plugins || []),
+            ],
+          };
+        },
+      };
+    },
+  ],
+
   themeConfig: {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
@@ -65,34 +103,17 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-  title: 'AI-Native Robotics',
-  logo: {
-    alt: 'AI-Native Robotics Logo',
-    src: 'img/logo.svg',
-  },
+  title: '',
+  hideOnScroll: false,
   items: [
+    // Docusaurus built-in locale dropdown (backup, hidden by default since we have custom TopBar)
     {
-      type: 'docSidebar',
-      sidebarId: 'docsSidebar',
-      position: 'left',
-      label: 'Textbook',
-    },
-    {
-      to: '/translator',
-      label: 'Urdu Translator',
-      position: 'left',
-    },
-    {
-      to: '/login',
-      label: 'Login',
+      type: 'localeDropdown',
       position: 'right',
-    },
-    {
-      href: 'https://github.com/AsmaIqbal01/ai-native-book',
-      label: 'GitHub',
-      position: 'right',
+      className: 'docusaurus-locale-dropdown',
     },
   ],
+  style: 'dark' as const,
 },
 footer: {
   style: 'dark',
