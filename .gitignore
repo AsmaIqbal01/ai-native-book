@@ -210,6 +210,10 @@ files_to_upload.json
 push_to_github.py
 upload_to_github.py
 
+# Cleanup archives
+archive/
+cleanup-plan.txt
+
 # OS-specific
 .DS_Store
 .DS_Store?

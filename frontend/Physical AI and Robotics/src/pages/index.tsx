@@ -2,6 +2,7 @@ import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import Layout from '@theme/Layout';
 import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import Heading from '@theme/Heading';
@@ -10,6 +11,7 @@ import styles from './index.module.css';
 
 function HomepageHeader() {
   const {siteConfig} = useDocusaurusContext();
+  const heroImageUrl = useBaseUrl('/img/hero-robot.svg');
   return (
     <header className={clsx('hero', styles.heroBanner)} role="banner">
       <div className="container">
@@ -27,12 +29,12 @@ function HomepageHeader() {
               Digital Twins, NVIDIA Isaac, and Vision-Language-Action models.
             </p>
             <div className={styles.heroButtons} role="group" aria-label="Main navigation options">
-              <Link
+              <a
                 className="button button--primary button--lg"
-                to="#weeks-plan"
+                href="#weeks-plan"
                 aria-label="View the 13-week learning plan">
                 Start Learning
-              </Link>
+              </a>
               <Link
                 className="button button--outline button--secondary button--lg"
                 to="/docs/chapter1/physical-ai"
@@ -57,7 +59,7 @@ function HomepageHeader() {
           </div>
           <div className={styles.heroImage} role="figure" aria-label="Robotic illustration">
             <img
-              src="/ai-native-book/img/hero-robot.svg"
+              src={heroImageUrl}
               alt="AI-Native Robotics Illustration"
               className={styles.heroRobot}
               loading="eager"
