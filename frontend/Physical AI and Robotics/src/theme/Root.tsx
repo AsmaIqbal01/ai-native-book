@@ -26,7 +26,7 @@ interface RootProps {
   children: React.ReactNode;
 }
 
-export default function Root({ children }: RootProps): JSX.Element {
+export default function Root({ children }: RootProps): React.ReactElement {
   // Only render FloatingChatWidget on client side to avoid SSR issues
   const [isBrowser, setIsBrowser] = useState(false);
 

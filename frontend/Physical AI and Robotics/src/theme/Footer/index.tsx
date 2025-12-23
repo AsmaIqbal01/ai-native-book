@@ -8,7 +8,7 @@ import { useTranslation } from '../../contexts/TranslationContext';
  * Overrides the default Docusaurus footer to support language switching
  */
 
-export default function Footer(): JSX.Element {
+export default function Footer(): React.ReactElement {
   const { t, language } = useTranslation();
   const currentYear = new Date().getFullYear();
 

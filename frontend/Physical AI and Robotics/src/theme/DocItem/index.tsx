@@ -15,7 +15,7 @@ import { useTranslation } from '../../contexts/TranslationContext';
 
 type Props = WrapperProps<typeof DocItemType>;
 
-export default function DocItemWrapper(props: Props): JSX.Element {
+export default function DocItemWrapper(props: Props): React.ReactElement {
   const { language } = useTranslation();
 
   return (

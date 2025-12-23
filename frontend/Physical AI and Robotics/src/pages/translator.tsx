@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 
-export default function Translator(): JSX.Element {
+export default function Translator(): React.ReactElement {
   return (
     <Layout
       title="Urdu Translator"

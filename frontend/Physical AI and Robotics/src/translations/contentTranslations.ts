@@ -208,12 +208,6 @@ export const contentTranslations: Record<string, string> = {
   'Tesla Optimus (Bot Gen 2)': 'ٹیسلا آپٹیمس (بوٹ جنریشن 2)',
   'including dexterous hands': 'ماہر ہاتھوں سمیت',
 
-  // Common phrases
-  'By the end of this section, you will:': 'اس سیکشن کے اختتام تک، آپ:',
-  'Our world is designed for human bodies. Humanoid robots can:':
-    'ہماری دنیا انسانی جسموں کے لیے ڈیزائن کی گئی ہے۔ ہیومنائڈ روبوٹس یہ کر سکتے ہیں:',
-  'Human-like form enables:': 'انسانی شکل ممکن بناتی ہے:',
-
   // Section headings with emojis
   '🎯 Learning Objectives': '🎯 سیکھنے کے مقاصد',
   '📚 Prerequisites': '📚 پیشگی ضروریات',

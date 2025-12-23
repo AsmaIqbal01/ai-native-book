@@ -241,7 +241,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
   }, [language]);
 
   const toggleLanguage = () => {
-    const newLocale = language === 'en' ? 'ur' : 'en';
+    const newLocale: Language = language === 'en' ? 'ur' : 'en';
 
     // Navigate to the new locale using Docusaurus routing
     if (typeof window !== 'undefined') {
@@ -290,7 +290,8 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
 
       // Fallback: Try to navigate to the equivalent page in the new locale
       let newPathWithoutBase: string;
-      if (newLocale === 'ur') {
+      // Type assertion needed due to TypeScript control flow narrowing
+      if ((newLocale as Language) === 'ur') {
         // Add /ur prefix
         newPathWithoutBase = pathWithoutBase.startsWith('/ur/')
           ? pathWithoutBase
@@ -364,7 +365,8 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
 
         // Fallback: Try to navigate to the equivalent page in the new locale
         let newPathWithoutBase: string;
-        if (lang === 'ur') {
+        // Type assertion needed due to TypeScript control flow narrowing
+        if ((lang as Language) === 'ur') {
           // Add /ur prefix
           newPathWithoutBase = pathWithoutBase.startsWith('/ur/')
             ? pathWithoutBase

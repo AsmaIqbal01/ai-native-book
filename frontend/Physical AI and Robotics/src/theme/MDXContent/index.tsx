@@ -67,7 +67,7 @@ function translateChildren(children: ReactNode, language: string): ReactNode {
   });
 }
 
-export default function MDXContentWrapper(props: MDXContentProps): JSX.Element {
+export default function MDXContentWrapper(props: MDXContentProps): React.ReactElement {
   const { language } = useTranslation();
   const [translatedContent, setTranslatedContent] = useState<ReactNode>(props.children);
 
