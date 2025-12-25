@@ -52,6 +52,7 @@ class Settings(BaseSettings):
 
     # Feature Flags
     use_multi_agent_system: bool = False  # Enable multi-agent architecture (FR-004 to FR-008)
+    use_openai_agents_sdk: bool = False  # Enable OpenAI Agents SDK (Spec 3 compliance)
 
     model_config = SettingsConfigDict(
         env_file=".env",

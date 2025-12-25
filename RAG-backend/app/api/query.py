@@ -4,6 +4,11 @@ Query endpoint for RAG chatbot.
 Implements dual-mode query system:
 - normal_rag: Semantic search + RAG
 - selected_text_only: Answer from selected text only
+
+Supports three architectures via feature flags:
+- OpenAI Agents SDK: True Spec 3 compliance (use_openai_agents_sdk=True)
+- Multi-Agent: Custom 5-agent system (use_multi_agent_system=True)
+- Legacy: Monolithic RAGAgent (default)
 """
 
 from fastapi import APIRouter, HTTPException
@@ -58,7 +63,99 @@ async def query(request: QueryRequest):
         "top_k": request.top_k,
         "has_selected_text": bool(request.selected_text),
         "using_multi_agent": settings.use_multi_agent_system,
+        "using_openai_sdk": settings.use_openai_agents_sdk,
     })
+
+    # ========================================================================
+    # FEATURE FLAG: OpenAI Agents SDK (Spec 3 Compliance)
+    # ========================================================================
+    if settings.use_openai_agents_sdk:
+        logger.info("Using OpenAI Agents SDK architecture")
+
+        from agents import Runner
+        from app.agents.sdk_agents import default_orchestrator
+
+        # Build structured input for the SDK agent
+        # The agent will use its tools to handle the request
+        if request.selected_text:
+            agent_input = f"""Question: {request.question}
+
+Selected Text (use this as context instead of retrieval):
+{request.selected_text}
+
+Instructions: Answer the question using ONLY the selected text above. Use mode='selected_text_only' when calling synthesize_answer."""
+        else:
+            agent_input = f"""Question: {request.question}
+
+Chapter Filter: {request.chapter if request.chapter else 'None (search all chapters)'}
+Top K Results: {request.top_k}
+
+Instructions: Use embed_and_retrieve to get relevant context, then use synthesize_answer to generate the answer."""
+
+        try:
+            # Execute SDK agent via Runner.run()
+            logger.info("Invoking SDK orchestrator agent via Runner.run()")
+            result = await Runner.run(
+                default_orchestrator,
+                input=agent_input,
+            )
+
+            # Extract answer from SDK result
+            answer = result.final_output
+
+            if not answer:
+                answer = "I couldn't generate an answer. Please try rephrasing your question."
+
+            logger.info("SDK agent execution completed", {
+                "answer_length": len(answer),
+            })
+
+            # Calculate latency
+            end_time = datetime.utcnow()
+            latency_ms = int((end_time - start_time).total_seconds() * 1000)
+
+            # Log query to Neon
+            try:
+                pool = await get_pool()
+                async with pool.acquire() as conn:
+                    await conn.execute(
+                        """
+                        INSERT INTO query_logs (
+                            query_id, question, mode, answer, chunks_used,
+                            latency_ms, created_at
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7)
+                        """,
+                        str(uuid.uuid4()),
+                        request.question,
+                        "openai_agents_sdk",
+                        answer,
+                        0,  # Chunks count can be extracted from tool results if needed
+                        latency_ms,
+                        start_time,
+                    )
+            except Exception as e:
+                logger.error(f"Failed to log query: {e}")
+
+            # Build response
+            return QueryResponse(
+                answer=answer,
+                mode="openai_agents_sdk",
+                citations=[],  # Can be populated from tool results if needed
+                metadata={
+                    "latency_ms": latency_ms,
+                    "architecture": "openai_agents_sdk",
+                    "sdk_version": "0.0.19",
+                    "orchestrator": "default_orchestrator",
+                }
+            )
+
+        except Exception as e:
+            logger.error(f"SDK agent execution failed: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=500,
+                detail=f"Error during SDK agent execution: {str(e)}"
+            )
 
     # ========================================================================
     # FEATURE FLAG: Multi-Agent System (FR-004 to FR-008)
