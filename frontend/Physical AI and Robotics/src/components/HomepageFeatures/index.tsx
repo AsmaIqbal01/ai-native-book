@@ -5,57 +5,51 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  image: string;
+  icon: string;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Physical AI Fundamentals',
-    image: require('@site/static/img/embeddedIntelligence.png').default,
+    title: 'Hands-On Learning',
+    icon: '🛠️',
     description: (
       <>
-        Master the foundations of embodied intelligence - from digital AI to physical robots
-        that understand and interact with the real world.
+        Build real robotic systems from day one. Every concept is reinforced with
+        practical projects and exercises using ROS2 and industry-standard tools.
       </>
     ),
   },
   {
-    title: 'Hands-On with ROS2 & Gazebo',
-    image: require('@site/static/img/ros2.png').default,
+    title: 'Industry-Relevant Skills',
+    icon: '🚀',
     description: (
       <>
-        Build real robotic systems using ROS2, simulate with Gazebo & Unity,
-        and deploy to actual hardware. Includes complete code examples.
+        Learn the exact technologies used by leading robotics companies: ROS2,
+        NVIDIA Isaac, Digital Twins, and modern AI frameworks.
       </>
     ),
   },
   {
-    title: 'AI-Powered Robotics',
-    image: require('@site/static/img/Isaac.png').default,
+    title: 'AI-Native Approach',
+    icon: '🤖',
     description: (
       <>
-        Integrate NVIDIA Isaac, Vision-Language-Action models, and cutting-edge AI
-        to create intelligent humanoid robots.
+        Master Vision-Language-Action models and foundation models for robotics.
+        Build intelligent systems that understand and act in the physical world.
       </>
     ),
   },
 ];
 
-function Feature({title, image, description}: FeatureItem) {
+function Feature({title, icon, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')} role="article" aria-labelledby={`feature-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <div className={clsx('col col--4')}>
       <div className="text--center">
-        <img
-          src={image}
-          className={styles.featureSvg}
-          alt={`${title} illustration`}
-        />
+        <div className={styles.featureIcon} aria-hidden="true">{icon}</div>
       </div>
       <div className="text--center padding-horiz--md">
-        <Heading as="h3" id={`feature-title-${title.toLowerCase().replace(/\s+/g, '-')}`}>
-          {title}
-        </Heading>
+        <Heading as="h3">{title}</Heading>
         <p>{description}</p>
       </div>
     </div>
@@ -64,11 +58,8 @@ function Feature({title, image, description}: FeatureItem) {
 
 export default function HomepageFeatures(): ReactNode {
   return (
-    <section className={styles.features} aria-labelledby="features-title">
+    <section className={styles.features}>
       <div className="container">
-        <Heading as="h2" id="features-title" className="visually-hidden">
-          Key Features of the Course
-        </Heading>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

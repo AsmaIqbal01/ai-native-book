@@ -1,57 +1,91 @@
+@import url('./tailwind.css');
+
+/* Import Urdu Font - Noto Nastaliq Urdu */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+
 /**
  * AI-Native Robotics Textbook - Custom Styles
  * Modern robotics-themed color palette with accessibility in mind
  */
 
-/* Light Mode - Robotics Blue Theme */
+/* Light Mode - Bold Enterprise AI Theme */
 :root {
-  /* Primary colors - Tech Blue */
-  --ifm-color-primary: #1976d2;
-  --ifm-color-primary-dark: #1565c0;
-  --ifm-color-primary-darker: #0d47a1;
-  --ifm-color-primary-darkest: #0a3d91;
-  --ifm-color-primary-light: #42a5f5;
-  --ifm-color-primary-lighter: #64b5f6;
-  --ifm-color-primary-lightest: #90caf9;
+  /* Primary colors - Electric Blue */
+  --ifm-color-primary: #0066ff;
+  --ifm-color-primary-dark: #0052cc;
+  --ifm-color-primary-darker: #0047b3;
+  --ifm-color-primary-darkest: #003d99;
+  --ifm-color-primary-light: #338aff;
+  --ifm-color-primary-lighter: #66a3ff;
+  --ifm-color-primary-lightest: #99c2ff;
 
   /* Code and syntax highlighting */
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(25, 118, 210, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 102, 255, 0.12);
 
-  /* Robotics accent colors */
-  --robotics-orange: #ff6f00;
-  --robotics-green: #00c853;
-  --robotics-purple: #6a1b9a;
-  --robotics-red: #d32f2f;
+  /* AI-Native accent colors - Bold & Electrifying */
+  --accent-electric-cyan: #00e5ff;
+  --accent-neon-purple: #a855f7;
+  --accent-laser-green: #10b981;
+  --accent-plasma-orange: #ff6600;
+  --accent-danger-red: #ef4444;
 
-  /* Custom spacing */
-  --ifm-spacing-horizontal: 1.5rem;
-  --ifm-global-radius: 0.5rem;
+  /* Gradients for bold UI elements */
+  --gradient-primary: linear-gradient(135deg, #0066ff 0%, #a855f7 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #00e5ff 100%);
+  --gradient-warning: linear-gradient(135deg, #ff6600 0%, #facc15 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+
+  /* Glow effects */
+  --glow-primary: 0 0 20px rgba(0, 102, 255, 0.4);
+  --glow-accent: 0 0 30px rgba(168, 85, 247, 0.5);
+  --glow-hover: 0 0 40px rgba(0, 229, 255, 0.6);
+
+  /* Custom spacing - Increased for boldness */
+  --ifm-spacing-horizontal: 2rem;
+  --ifm-global-radius: 0.75rem;
+
+  /* Typography - Strong and confident */
+  --ifm-font-weight-bold: 700;
+  --ifm-font-weight-semibold: 600;
+  --ifm-heading-font-weight: 800;
 }
 
-/* Dark Mode - Cyberpunk Neon Theme */
+/* Dark Mode - Bold Cyberpunk AI Theme */
 [data-theme='dark'] {
-  /* Primary colors - Electric Cyan */
-  --ifm-color-primary: #00e5ff;
-  --ifm-color-primary-dark: #00d4e6;
-  --ifm-color-primary-darker: #00b8cc;
-  --ifm-color-primary-darkest: #009cb3;
-  --ifm-color-primary-light: #33ebff;
-  --ifm-color-primary-lighter: #66f0ff;
-  --ifm-color-primary-lightest: #99f5ff;
+  /* Primary colors - Electric Cyan with high contrast */
+  --ifm-color-primary: #00ffff;
+  --ifm-color-primary-dark: #00e6e6;
+  --ifm-color-primary-darker: #00cccc;
+  --ifm-color-primary-darkest: #00b3b3;
+  --ifm-color-primary-light: #33ffff;
+  --ifm-color-primary-lighter: #66ffff;
+  --ifm-color-primary-lightest: #99ffff;
 
   /* Code highlighting in dark mode */
-  --docusaurus-highlighted-code-line-bg: rgba(0, 229, 255, 0.15);
+  --docusaurus-highlighted-code-line-bg: rgba(0, 255, 255, 0.18);
 
-  /* Dark mode background */
-  --ifm-background-color: #0a1929;
-  --ifm-background-surface-color: #1a2332;
+  /* Dark mode backgrounds - Deep space theme */
+  --ifm-background-color: #050a0f;
+  --ifm-background-surface-color: #0f1419;
 
-  /* Robotics accent colors for dark mode */
-  --robotics-orange: #ff9100;
-  --robotics-green: #00e676;
-  --robotics-purple: #ab47bc;
-  --robotics-red: #ff5252;
+  /* AI-Native accent colors for dark mode - Ultra vibrant */
+  --accent-electric-cyan: #00ffff;
+  --accent-neon-purple: #c084fc;
+  --accent-laser-green: #34d399;
+  --accent-plasma-orange: #ff8533;
+  --accent-danger-red: #f87171;
+
+  /* Dark mode gradients - More intense */
+  --gradient-primary: linear-gradient(135deg, #00ffff 0%, #c084fc 100%);
+  --gradient-success: linear-gradient(135deg, #34d399 0%, #00ffff 100%);
+  --gradient-warning: linear-gradient(135deg, #ff8533 0%, #fbbf24 100%);
+  --gradient-danger: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+
+  /* Enhanced glow effects for dark mode */
+  --glow-primary: 0 0 30px rgba(0, 255, 255, 0.6);
+  --glow-accent: 0 0 40px rgba(192, 132, 252, 0.7);
+  --glow-hover: 0 0 50px rgba(0, 255, 255, 0.8);
 }
 
 /* Typography Enhancements */
@@ -166,12 +200,12 @@ pre code {
 }
 
 /* Image Captions */
-figure {
+.figure {
   text-align: center;
   margin: 2rem 0;
 }
 
-figcaption {
+.figcaption {
   margin-top: 0.5rem;
   font-style: italic;
   font-size: 0.875rem;
@@ -284,4 +318,456 @@ button:focus {
   .main-wrapper {
     max-width: 100%;
   }
+
+  /* Hide floating chat widget when printing */
+  [role="dialog"],
+  button[aria-label="Open AI chatbot"] {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   Floating Chat Widget Styles
+   ============================================ */
+
+/* Ensure floating widget has highest z-index */
+.floating-chat-widget {
+  z-index: 9999 !important;
+}
+
+/* Smooth animations for floating button */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(147, 51, 234, 0.7);
+  }
+}
+
+/* Apply glow effect to chat button when there are unread messages */
+button[aria-label="Open AI chatbot"]:has(.animate-pulse) {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Ensure floating widget appears above Docusaurus navbar and sidebars */
+.floating-chat-widget,
+button[aria-label="Open AI chatbot"],
+[role="dialog"][aria-label="AI Chatbot"] {
+  z-index: 9999 !important;
+}
+
+/* Backdrop for chat widget (when expanded) */
+.floating-chat-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+}
+
+/* Mobile adjustments for floating chat */
+@media (max-width: 640px) {
+  /* Full-screen chat on mobile */
+  [role="dialog"][aria-label="AI Chatbot"] {
+    width: 100vw !important;
+    height: 100vh !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+  }
+
+  /* Adjust floating button position on mobile */
+  button[aria-label="Open AI chatbot"] {
+    bottom: 1rem !important;
+    left: 1rem !important;
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+  button[aria-label="Open AI chatbot"] {
+    border: 2px solid currentColor;
+  }
+
+  [role="dialog"][aria-label="AI Chatbot"] {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  button[aria-label="Open AI chatbot"],
+  [role="dialog"][aria-label="AI Chatbot"] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Dark mode adjustments for floating chat */
+[data-theme='dark'] .floating-chat-widget {
+  /* Any dark mode specific styles if needed */
+}
+
+/* ============================================
+   Global Urdu Font Application
+   When language is switched to Urdu, apply font to ALL elements
+   ============================================ */
+
+/* Ensure Urdu text displays correctly */
+[lang="ur"],
+[dir="rtl"] {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Global Urdu font application - applies to ALL elements when Urdu is active */
+html.urdu-active,
+html.urdu-active body,
+html.urdu-active * {
+  font-family: 'Noto Nastaliq Urdu', serif !important;
+}
+
+/* Preserve monospace fonts for code blocks even in Urdu mode */
+html.urdu-active code,
+html.urdu-active pre,
+html.urdu-active kbd,
+html.urdu-active samp,
+html.urdu-active .prism-code,
+html.urdu-active [class*="codeBlock"] {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
+/* Ensure RTL layout for Urdu */
+html.urdu-active {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Adjust text alignment for better Urdu readability */
+html.urdu-active p,
+html.urdu-active li,
+html.urdu-active div,
+html.urdu-active span {
+  text-align: right;
+}
+
+/* Keep centering for specific elements */
+html.urdu-active .text-center,
+html.urdu-active [style*="text-align: center"],
+html.urdu-active .hero__title,
+html.urdu-active .hero__subtitle {
+  text-align: center !important;
+}
+
+/* Flip navigation elements for RTL */
+html.urdu-active .navbar__items {
+  flex-direction: row-reverse;
+}
+
+html.urdu-active .menu__list {
+  padding-right: 0;
+  padding-left: var(--ifm-menu-link-padding-horizontal);
+}
+
+/* Adjust spacing for RTL sidebar */
+html.urdu-active .menu__link {
+  padding-right: calc(var(--ifm-menu-link-padding-horizontal) + var(--ifm-menu-link-sublist-icon-width));
+  padding-left: var(--ifm-menu-link-padding-horizontal);
+}
+
+html.urdu-active .menu__list-item--collapsed .menu__link--sublist:after,
+html.urdu-active .menu__list-item--active .menu__link--sublist:after {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   BOLD ELECTRIFYING DESIGN SYSTEM
+   Enterprise-Grade AI-Native Aesthetics
+   ============================================ */
+
+/* Buttons - Bold and Confident */
+button,
+.button {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover:not(:disabled),
+.button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--glow-hover);
+}
+
+button:active:not(:disabled),
+.button:active:not(:disabled) {
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Primary Action Buttons with Gradient */
+.button--primary,
+button[type="submit"],
+button.bg-blue-500 {
+  background: var(--gradient-primary) !important;
+  border: none;
+  box-shadow: var(--glow-primary);
+}
+
+.button--primary:hover,
+button[type="submit"]:hover,
+button.bg-blue-500:hover {
+  box-shadow: var(--glow-accent);
+  filter: brightness(1.1);
+}
+
+/* Cards - Elevated and Modern */
+.card,
+.admonition {
+  border-radius: var(--ifm-global-radius);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.card:hover,
+.admonition:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 16px 48px rgba(168, 85, 247, 0.25), var(--glow-accent);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+[data-theme='dark'] .card,
+[data-theme='dark'] .admonition {
+  background: linear-gradient(135deg, rgba(15, 20, 25, 0.95) 0%, rgba(20, 30, 40, 0.9) 100%);
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .card:hover,
+[data-theme='dark'] .admonition:hover {
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow: 0 16px 48px rgba(0, 255, 255, 0.3), var(--glow-primary);
+}
+
+/* Navigation Bar - Bold and Premium */
+.navbar {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(0, 102, 255, 0.2);
+}
+
+[data-theme='dark'] .navbar {
+  border-bottom-color: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 255, 255, 0.1);
+}
+
+/* Headings - Ultra Bold */
+h1, h2, h3, h4, h5, h6,
+.hero__title,
+.hero__subtitle {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+h1, .hero__title {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+}
+
+[data-theme='dark'] h1,
+[data-theme='dark'] .hero__title {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.5));
+}
+
+/* Links - Electrifying Underlines */
+a {
+  position: relative;
+  text-decoration: none;
+  background: linear-gradient(to right, var(--ifm-color-primary), var(--accent-neon-purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.3s ease;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+/* Code Blocks - Enhanced Visibility */
+pre code {
+  border-left: 4px solid var(--ifm-color-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] pre code {
+  border-left-color: var(--accent-electric-cyan);
+  box-shadow: 0 4px 16px rgba(0, 255, 255, 0.2);
+}
+
+/* Inputs - Modern and Clean */
+input,
+textarea,
+select {
+  border-radius: var(--ifm-global-radius);
+  border: 2px solid rgba(0, 102, 255, 0.3);
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--ifm-color-primary);
+  box-shadow: var(--glow-primary);
+  outline: none;
+}
+
+[data-theme='dark'] input,
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+  border-color: rgba(0, 255, 255, 0.3);
+  background: rgba(15, 20, 25, 0.8);
+}
+
+[data-theme='dark'] input:focus,
+[data-theme='dark'] textarea:focus,
+[data-theme='dark'] select:focus {
+  border-color: var(--accent-electric-cyan);
+  box-shadow: var(--glow-primary);
+}
+
+/* Scrollbar - Sleek and Modern */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  filter: brightness(1.2);
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Animations - Smooth and Professional */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: var(--glow-primary);
+  }
+  50% {
+    box-shadow: var(--glow-accent);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply entrance animation to main content */
+main article {
+  animation: slide-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Badges and Pills - Vibrant */
+.badge,
+.chapter-badge {
+  background: var(--gradient-primary);
+  color: white;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  box-shadow: var(--glow-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+}
+
+/* Selection - Branded */
+::selection {
+  background: var(--ifm-color-primary);
+  color: white;
+}
+
+[data-theme='dark'] ::selection {
+  background: var(--accent-electric-cyan);
+  color: #000;
+}
+
+/* Focus Outlines - Accessible and Bold */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+  border-radius: var(--ifm-global-radius);
+}
+
+[data-theme='dark'] a:focus-visible,
+[data-theme='dark'] button:focus-visible,
+[data-theme='dark'] input:focus-visible,
+[data-theme='dark'] textarea:focus-visible {
+  outline-color: var(--accent-electric-cyan);
+  box-shadow: var(--glow-primary);
+}
+
+/* ============================================
+   Hide Docusaurus Default Navbar
+   We use custom TopBar component instead
+   ============================================ */
+.navbar__inner {
+  display: none !important;
+}
+
+/* Keep navbar container for spacing but hide content */
+.navbar {
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }

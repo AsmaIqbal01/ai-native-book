@@ -1,0 +1,18 @@
+{
+  "title": {
+    "message": "AI-Native روبوٹکس",
+    "description": "The title in the navbar"
+  },
+  "item.label.Docs": {
+    "message": "دستاویزات",
+    "description": "Navbar item with label Docs"
+  },
+  "item.label.Tutorial": {
+    "message": "ٹیوٹوریل",
+    "description": "Navbar item with label Tutorial"
+  },
+  "item.label.GitHub": {
+    "message": "گٹ ہب",
+    "description": "Navbar item with label GitHub"
+  }
+}

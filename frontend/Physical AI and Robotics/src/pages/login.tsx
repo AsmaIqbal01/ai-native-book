@@ -2,7 +2,7 @@ import React from 'react';
 import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 
-export default function Login(): JSX.Element {
+export default function Login(): React.ReactElement {
   return (
     <Layout
       title="Login"
