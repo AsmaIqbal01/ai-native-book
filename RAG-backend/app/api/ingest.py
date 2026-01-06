@@ -6,10 +6,10 @@ Orchestrates: parsing → chunking → Neon storage → embedding → Qdrant sto
 
 from fastapi import APIRouter, HTTPException
 from app.models.schemas import IngestRequest, IngestResponse
-from app.services.embedder import EmbeddingService
-from app.services.chunker import chunk_text, count_tokens
+from app.ingestion.embedder import EmbeddingService
+from app.ingestion.chunker import chunk_text, count_tokens
 from app.db.neon_client import get_pool
-from app.db.qdrant_client import get_client
+from app.retrieval.qdrant_client import get_client
 from qdrant_client.models import PointStruct
 import uuid
 

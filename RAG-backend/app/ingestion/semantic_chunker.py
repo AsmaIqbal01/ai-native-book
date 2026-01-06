@@ -13,12 +13,16 @@ Implements intelligent, meaning-preserving chunking following the canonical sche
 }
 """
 
+import logging
 import re
 import uuid
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import frontmatter
 import tiktoken
+from app.utils.tokens import count_tokens
+
+logger = logging.getLogger(__name__)
 
 
 def safe_print(*args, **kwargs):
@@ -49,28 +53,25 @@ class SemanticChunker:
 
     def __init__(
         self,
-        min_tokens: int = 150,
-        max_tokens: int = 300,
-        overlap_tokens: int = 50,
+        min_tokens: int = 250,      # Increased from 150 to reduce number of chunks
+        max_tokens: int = 600,      # Increased from 300 to reduce number of chunks
+        overlap_tokens: int = 100,  # Increased from 50 to provide better context
         encoding_model: str = "cl100k_base"
     ):
         """
         Initialize semantic chunker.
 
         Args:
-            min_tokens: Minimum tokens per chunk
-            max_tokens: Maximum tokens per chunk
-            overlap_tokens: Token overlap between chunks for context
+            min_tokens: Minimum tokens per chunk (default: 250 to reduce API calls)
+            max_tokens: Maximum tokens per chunk (default: 600 to reduce API calls)
+            overlap_tokens: Token overlap between chunks for context (default: 100)
             encoding_model: Tiktoken encoding model
         """
         self.min_tokens = min_tokens
         self.max_tokens = max_tokens
         self.overlap_tokens = overlap_tokens
-        self.tokenizer = tiktoken.get_encoding(encoding_model)
+        self.encoding_model = encoding_model
 
-    def count_tokens(self, text: str) -> int:
-        """Count tokens in text using tiktoken."""
-        return len(self.tokenizer.encode(text))
 
     def extract_metadata(self, file_path: Path) -> Dict[str, Any]:
         """
@@ -172,7 +173,7 @@ class SemanticChunker:
         Returns:
             List of chunks
         """
-        token_count = self.count_tokens(section_text)
+        token_count = count_tokens(section_text, self.encoding_model)
 
         # If section is within target range, return as is
         if self.min_tokens <= token_count <= self.max_tokens:
@@ -315,7 +316,7 @@ class SemanticChunker:
         mdx_files = list(docs_path.glob('**/*.mdx'))
         all_files = md_files + mdx_files
 
-        print(f"Found {len(all_files)} documentation files")
+        logger.info(f"Found {len(all_files)} documentation files")
 
         for file_path in sorted(all_files):
             # Get or generate doc_id for this file
@@ -323,17 +324,17 @@ class SemanticChunker:
             doc_id = doc_id_mapping.get(file_key, str(uuid.uuid4()))
             doc_id_mapping[file_key] = doc_id
 
-            safe_print(f"Processing: {file_path.name}")
+            logger.info(f"Processing: {file_path.name}")
 
             try:
                 chunks = self.process_document(file_path, doc_id)
                 all_chunks.extend(chunks)
-                safe_print(f"  → Generated {len(chunks)} chunks")
+                logger.info(f"  → Generated {len(chunks)} chunks")
             except Exception as e:
-                safe_print(f"  ✗ Error processing {file_path.name}: {e}")
+                logger.error(f"  ✗ Error processing {file_path.name}: {e}")
                 continue
 
-        safe_print(f"\n✓ Total chunks generated: {len(all_chunks)}")
+        logger.info(f"Total chunks generated: {len(all_chunks)}")
         return all_chunks
 
 
@@ -355,36 +356,36 @@ def validate_chunk_schema(chunk: Dict[str, Any]) -> bool:
     # Check all required fields exist
     for field in required_fields:
         if field not in chunk:
-            print(f"Missing field: {field}")
+            logger.error(f"Missing field: {field}")
             return False
 
     # Validate types
     if not isinstance(chunk['chunk_id'], str):
-        print("chunk_id must be string")
+        logger.error("chunk_id must be string")
         return False
 
     if not isinstance(chunk['doc_id'], str):
-        print("doc_id must be string")
+        logger.error("doc_id must be string")
         return False
 
     if not isinstance(chunk['chunk_text'], str):
-        print("chunk_text must be string")
+        logger.error("chunk_text must be string")
         return False
 
     if not isinstance(chunk['chapter'], int):
-        print("chapter must be int")
+        logger.error("chapter must be int")
         return False
 
     if not isinstance(chunk['section'], str):
-        print("section must be string")
+        logger.error("section must be string")
         return False
 
     if not isinstance(chunk['page'], int):
-        print("page must be int")
+        logger.error("page must be int")
         return False
 
     if not isinstance(chunk['token_count'], int):
-        print("token_count must be int")
+        logger.error("token_count must be int")
         return False
 
     return True

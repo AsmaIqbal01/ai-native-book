@@ -9,7 +9,8 @@ Verifies connectivity to all external services:
 
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.db import neon_client, qdrant_client
+from app.db import neon_client
+from app.retrieval import qdrant_client
 
 router = APIRouter()
 

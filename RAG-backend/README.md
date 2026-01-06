@@ -4,6 +4,8 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com)
+[![Spec 4](https://img.shields.io/badge/Spec%204-✅%20Complete-success.svg)](./SPEC-4-COMPLETION-CERTIFICATE.md)
+[![Multi-Agent](https://img.shields.io/badge/Architecture-Multi--Agent-blue.svg)](./SPEC-4-COMPLETION-CERTIFICATE.md)
 
 ---
 

@@ -7,7 +7,7 @@ and HTTP status code mapping. Preserves technical details for server-side loggin
 
 from app.agents.base_agent import BaseAgent, ValidationResult
 from app.models.agent_types import ErrorClassification, ErrorRecoveryInput
-from openai import RateLimitError
+from openai import RateLimitError, AuthenticationError
 from pydantic import ValidationError
 import asyncio
 import logging
@@ -110,6 +110,16 @@ class ErrorRecoveryAgent(BaseAgent[ErrorRecoveryInput, ErrorClassification]):
                 should_retry=False
             )
 
+        # Authentication errors
+        if isinstance(exception, AuthenticationError):
+            return ErrorClassification(
+                error_type="authentication",
+                status_code=401,
+                user_message="Authentication failed. Please check your API key and ensure it's valid and not expired.",
+                technical_details=technical_details,
+                should_retry=False  # Don't retry authentication errors
+            )
+
         # Rate limit errors (quota vs rate)
         if isinstance(exception, RateLimitError):
             # Check if it's quota exhaustion or rate limiting
@@ -129,6 +139,18 @@ class ErrorRecoveryAgent(BaseAgent[ErrorRecoveryInput, ErrorClassification]):
                     technical_details=technical_details,
                     should_retry=True
                 )
+
+        # Authentication errors (401)
+        if "401" in error_str or "invalid_api_key" in error_str or "invalid api key" in error_str or \
+           "authentication" in error_str or "unauthorized" in error_str or "token expired" in error_str or \
+           "expired token" in error_str:
+            return ErrorClassification(
+                error_type="authentication",
+                status_code=401,
+                user_message="Authentication failed. Please check your API key and ensure it's valid and not expired.",
+                technical_details=technical_details,
+                should_retry=False  # Don't retry authentication errors
+            )
 
         # Check error string for rate limit indicators
         if "quota" in error_str or "rate limit" in error_str or "429" in error_str:

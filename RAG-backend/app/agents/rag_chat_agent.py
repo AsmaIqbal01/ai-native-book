@@ -18,7 +18,7 @@ from app.models.agent_types import (
     SynthesisInput,
     ErrorRecoveryInput
 )
-from app.services.context_builder import build_context_selected_text
+from app.tools.context_builder import build_context_selected_text
 from fastapi import HTTPException
 import logging
 

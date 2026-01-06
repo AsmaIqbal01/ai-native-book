@@ -6,12 +6,13 @@ Uses tiktoken for accurate token counting with sliding window approach.
 
 import tiktoken
 from typing import List
+from app.utils.tokens import count_tokens
 
 
 def chunk_text(
     text: str,
-    chunk_size: int = 512,
-    overlap: int = 50,
+    chunk_size: int = 1024,  # Increased from 512 to reduce number of chunks
+    overlap: int = 100,      # Increased from 50 to provide better context
     encoding_name: str = "cl100k_base"
 ) -> List[str]:
     """
@@ -19,8 +20,8 @@ def chunk_text(
 
     Args:
         text: Text to chunk.
-        chunk_size: Maximum tokens per chunk (default: 512).
-        overlap: Token overlap between chunks (default: 50).
+        chunk_size: Maximum tokens per chunk (default: 1024 to reduce API calls).
+        overlap: Token overlap between chunks (default: 100 for better context).
         encoding_name: Tokenizer encoding (default: cl100k_base for OpenAI models).
 
     Returns:
@@ -52,18 +53,3 @@ def chunk_text(
         start_idx += (chunk_size - overlap)
 
     return chunks
-
-
-def count_tokens(text: str, encoding_name: str = "cl100k_base") -> int:
-    """
-    Count the number of tokens in text.
-
-    Args:
-        text: Text to count tokens for.
-        encoding_name: Tokenizer encoding.
-
-    Returns:
-        int: Token count.
-    """
-    encoding = tiktoken.get_encoding(encoding_name)
-    return len(encoding.encode(text))

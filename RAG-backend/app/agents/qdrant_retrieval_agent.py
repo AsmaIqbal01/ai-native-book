@@ -7,9 +7,9 @@ Reuses existing EmbeddingService and RetrieverService.
 
 from app.agents.base_agent import BaseAgent, ValidationResult
 from app.models.agent_types import RetrievalInput, RetrievalResult
-from app.services.embedder import EmbeddingService
-from app.services.retriever import RetrieverService
-from app.services.context_builder import build_context_normal_rag
+from app.ingestion.embedder import EmbeddingService
+from app.retrieval.retriever import RetrieverService
+from app.tools.context_builder import build_context_normal_rag
 import logging
 
 logger = logging.getLogger(__name__)

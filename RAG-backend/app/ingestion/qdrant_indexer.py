@@ -16,26 +16,12 @@ from qdrant_client.models import (
     OptimizersConfigDiff,
 )
 from app.config import settings
-from app.services.embedder import EmbeddingService
+from app.ingestion.embedder import EmbeddingService
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-def safe_print(*args, **kwargs):
-    """Print with fallback for Unicode encoding errors on Windows."""
-    try:
-        print(*args, **kwargs)
-    except UnicodeEncodeError:
-        # Replace common emojis with ASCII equivalents
-        new_args = []
-        for arg in args:
-            if isinstance(arg, str):
-                arg = (arg.replace('✓', '[OK]')
-                         .replace('✗', '[X]')
-                         .replace('→', '->'))
-            new_args.append(arg)
-        print(*new_args, **kwargs)
 
 
 class QdrantIndexer:
@@ -189,13 +175,13 @@ class QdrantIndexer:
 
                 if show_progress:
                     progress = (indexed_count / total_chunks) * 100
-                    safe_print(f"Batch {batch_num}: Indexed {indexed_count}/{total_chunks} chunks ({progress:.1f}%)")
+                    logger.info(f"Batch {batch_num}: Indexed {indexed_count}/{total_chunks} chunks ({progress:.1f}%)")
 
             except Exception as e:
                 failed_count += len(batch)
                 logger.error(f"Error indexing batch {batch_num}: {e}")
                 if show_progress:
-                    safe_print(f"✗ Batch {batch_num} failed: {e}")
+                    logger.error(f"✗ Batch {batch_num} failed: {e}")
 
         # Get final collection info
         collection_info = await self.get_collection_info()

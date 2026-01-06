@@ -7,7 +7,7 @@ Routes queries to appropriate handlers (RAG vs greeting vs rejection).
 
 from app.agents.base_agent import BaseAgent, ValidationResult
 from app.models.agent_types import RouterInput, RouterResult
-from app.services.mode_detector import detect_mode
+from app.utils.mode_detector import detect_mode
 import re
 import logging
 

@@ -5,7 +5,7 @@ Tests the detection logic for normal_rag vs selected_text_only modes.
 """
 
 import pytest
-from app.services.mode_detector import detect_mode
+from app.utils.mode_detector import detect_mode
 
 
 def test_detect_normal_rag_when_no_selected_text():

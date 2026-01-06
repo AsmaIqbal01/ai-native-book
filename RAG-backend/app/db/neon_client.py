@@ -5,7 +5,10 @@ Provides connection pooling for async database operations.
 """
 
 import asyncpg
-from app.config import settings
+
+
+from app.config.config import settings
+from app.config.rate_limit_config import rate_limit_config  # if you also need rate limit
 
 # Global connection pool
 _pool: asyncpg.Pool | None = None

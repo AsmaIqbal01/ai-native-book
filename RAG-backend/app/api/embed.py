@@ -6,9 +6,9 @@ Useful when changing embedding models or updating embeddings for existing conten
 
 from fastapi import APIRouter, HTTPException
 from app.models.schemas import EmbedRequest, EmbedResponse
-from app.services.embedder import EmbeddingService
+from app.ingestion.embedder import EmbeddingService
 from app.db.neon_client import get_pool
-from app.db.qdrant_client import get_client
+from app.retrieval.qdrant_client import get_client
 from qdrant_client.models import PointStruct
 import uuid
 

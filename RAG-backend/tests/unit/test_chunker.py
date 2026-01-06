@@ -3,7 +3,7 @@ Unit tests for text chunking service.
 """
 
 import pytest
-from app.services.chunker import chunk_text, count_tokens
+from app.ingestion.chunker import chunk_text, count_tokens
 
 
 def test_chunk_text_short_content():

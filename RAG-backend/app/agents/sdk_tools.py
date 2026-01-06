@@ -13,10 +13,16 @@ from typing import Annotated, Optional
 from pydantic import BaseModel, Field
 from agents import function_tool
 
-from app.services.embedder import EmbeddingService
-from app.services.retriever import RetrieverService
-from app.services.context_builder import build_context_normal_rag, DEFAULT_MAX_CONTEXT_TOKENS
+from app.ingestion.embedder import EmbeddingService
+from app.retrieval.retriever import RetrieverService
+from app.tools.context_builder import build_context_normal_rag, DEFAULT_MAX_CONTEXT_TOKENS
 from app.utils.logging import get_logger
+from app.utils.retry import retry_with_exponential_backoff
+from app.utils.concurrency import get_llm_concurrency_limiter
+from app.utils.cache import cache_llm_responses
+from app.utils.api_key_validator import validate_provider_configuration
+import asyncio
+import time
 
 logger = get_logger(__name__)
 
@@ -120,6 +126,7 @@ async def embed_and_retrieve(
 # Tool 2: Synthesize Answer (Wraps AnswerSynthesisAgent logic)
 # ============================================================================
 
+@cache_llm_responses(ttl=1800)  # Cache for 30 minutes
 @function_tool
 async def synthesize_answer(
     context: Annotated[str, "Retrieved or selected context"],
@@ -178,6 +185,16 @@ async def synthesize_answer(
     # Build provider list (REUSES failover logic)
     providers = []
     if settings.llm_api_key:
+        # Validate that the API key matches the provider
+        is_valid, error_msg = validate_provider_configuration(
+            settings.llm_api_key,
+            settings.llm_provider,
+            settings.llm_base_url
+        )
+        if not is_valid:
+            logger.error(f"Primary provider configuration invalid in SDK tool: {error_msg}")
+            raise ValueError(f"Primary provider configuration error in SDK tool: {error_msg}")
+
         providers.append({
             "name": settings.llm_provider,
             "client": AsyncOpenAI(
@@ -188,6 +205,16 @@ async def synthesize_answer(
         })
 
     if settings.llm_api_key_fallback_1:
+        # Validate that the API key matches the provider
+        is_valid, error_msg = validate_provider_configuration(
+            settings.llm_api_key_fallback_1,
+            settings.llm_provider_fallback_1,
+            settings.llm_base_url_fallback_1
+        )
+        if not is_valid:
+            logger.error(f"Fallback provider 1 configuration invalid in SDK tool: {error_msg}")
+            raise ValueError(f"Fallback provider 1 configuration error in SDK tool: {error_msg}")
+
         providers.append({
             "name": settings.llm_provider_fallback_1,
             "client": AsyncOpenAI(
@@ -198,6 +225,16 @@ async def synthesize_answer(
         })
 
     if settings.llm_api_key_fallback_2:
+        # Validate that the API key matches the provider
+        is_valid, error_msg = validate_provider_configuration(
+            settings.llm_api_key_fallback_2,
+            settings.llm_provider_fallback_2,
+            settings.llm_base_url_fallback_2
+        )
+        if not is_valid:
+            logger.error(f"Fallback provider 2 configuration invalid in SDK tool: {error_msg}")
+            raise ValueError(f"Fallback provider 2 configuration error in SDK tool: {error_msg}")
+
         providers.append({
             "name": settings.llm_provider_fallback_2,
             "client": AsyncOpenAI(
@@ -213,40 +250,91 @@ async def synthesize_answer(
         try:
             logger.info(f"Attempting LLM call with {provider['name']} ({i+1}/{len(providers)})")
 
-            response = await provider["client"].chat.completions.create(
-                model=provider["model"],
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                temperature=0.0,  # Deterministic for factual Q&A
-                max_tokens=1000,
-            )
+            # Acquire concurrency slot before making the API call
+            limiter = get_llm_concurrency_limiter()
+            async with limiter.context():
+                logger.debug(
+                    f"Acquired concurrency slot for {provider['name']}. "
+                    f"Current usage: {limiter.current_usage}/{limiter.max_concurrent}"
+                )
 
-            answer = response.choices[0].message.content
-            logger.info(f"Successfully generated response using {provider['name']}")
+                # Use retry decorator for the actual API call
+                response = await _make_llm_call_with_retry(
+                    provider, system_prompt, user_prompt
+                )
 
-            return AnswerResult(
-                answer=answer,
-                provider_used=provider["name"],
-                metadata={
-                    "mode": mode,
-                    "context_length": len(context),
-                    "temperature": 0.0
-                }
-            )
+                answer = response.choices[0].message.content
+                logger.info(f"Successfully generated response using {provider['name']}")
+
+                return AnswerResult(
+                    answer=answer,
+                    provider_used=provider["name"],
+                    metadata={
+                        "mode": mode,
+                        "context_length": len(context),
+                        "temperature": 0.0
+                    }
+                )
 
         except RateLimitError as e:
             last_error = e
             logger.warning(f"Rate limit on {provider['name']}, trying next...")
+            # Add a small delay before trying the next provider to avoid immediate retry loops
+            await asyncio.sleep(0.5)
             continue
         except Exception as e:
             last_error = e
             logger.error(f"Error with {provider['name']}: {e}")
+            # Add a small delay before trying the next provider to avoid immediate retry loops
+            await asyncio.sleep(0.5)
             continue
 
     # All providers failed
     raise Exception(f"All LLM providers failed. Last error: {str(last_error)}")
+
+
+@retry_with_exponential_backoff(
+    max_retries=3,
+    initial_delay=1.0,
+    exponential_base=2.0,
+    jitter=True,
+    max_delay=30.0,
+    exceptions=(RateLimitError,),
+    detect_429=True
+)
+async def _make_llm_call_with_retry(provider: dict, system_prompt: str, user_prompt: str):
+    """
+    Make LLM call with retry logic specifically for rate limit errors.
+
+    Args:
+        provider: Provider configuration dict
+        system_prompt: System prompt to use
+        user_prompt: Formatted user prompt
+
+    Returns:
+        LLM response object
+
+    Raises:
+        RateLimitError: If rate limits continue after retries
+    """
+    start_time = time.time()
+
+    logger.debug(f"Making LLM call to {provider['name']}")
+
+    response = await provider["client"].chat.completions.create(
+        model=provider["model"],
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        temperature=0.0,  # Deterministic for factual Q&A
+        max_tokens=1000,
+    )
+
+    duration = time.time() - start_time
+    logger.debug(f"LLM call completed in {duration:.2f}s")
+
+    return response
 
 
 # ============================================================================

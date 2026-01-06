@@ -16,10 +16,10 @@ from datetime import datetime
 from pydantic import ValidationError
 from app.models.schemas import QueryRequest, QueryResponse
 from app.models.agent_types import OrchestratorInput
-from app.services.mode_detector import detect_mode
-from app.services.context_builder import build_context_normal_rag, build_context_selected_text
-from app.services.embedder import EmbeddingService
-from app.services.retriever import RetrieverService
+from app.utils.mode_detector import detect_mode
+from app.tools.context_builder import build_context_normal_rag, build_context_selected_text
+from app.ingestion.embedder import EmbeddingService
+from app.retrieval.retriever import RetrieverService
 from app.agents.rag_agent import get_agent
 from app.agents.rag_chat_agent import RAGChatAgent
 from app.config import settings

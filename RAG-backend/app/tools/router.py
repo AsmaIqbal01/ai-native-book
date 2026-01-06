@@ -3,12 +3,24 @@ OpenRouter LLM client configuration.
 
 Provides a pre-configured OpenAI client for OpenRouter API with proper headers
 and settings for optimal performance with free-tier models.
+Environment variables used:
+- OPENROUTER_API_KEY: API key for OpenRouter
+- OPENROUTER_BASE_URL: Base URL for OpenRouter API
+- OPENROUTER_MODEL: Model to use (optional, defaults to 'mistralai/devstral-2512:free')
+- OPENROUTER_SITE_URL: Optional site URL for rankings
+- OPENROUTER_SITE_NAME: Optional site name for rankings
 """
 
 import os
-from openai import OpenAI, AsyncOpenAI
-from app.config import settings
+from openai import OpenAI, AsyncOpenAI, RateLimitError
 from typing import Optional
+from app.utils.retry import retry_with_exponential_backoff
+from app.utils.concurrency import get_llm_concurrency_limiter
+import asyncio
+import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class OpenRouterClient:
@@ -26,15 +38,28 @@ class OpenRouterClient:
         Initialize OpenRouter client.
 
         Args:
-            api_key: OpenRouter API key (defaults to settings)
-            base_url: OpenRouter base URL (defaults to settings)
+            api_key: OpenRouter API key (defaults to OPENROUTER_API_KEY env var)
+            base_url: OpenRouter base URL (defaults to OPENROUTER_BASE_URL env var)
             model: Model to use (defaults to settings)
             site_url: Optional site URL for rankings on openrouter.ai
             site_name: Optional site name for rankings on openrouter.ai
         """
-        self.api_key = api_key or settings.llm_api_key
-        self.base_url = base_url or settings.llm_base_url
-        self.model = model or settings.llm_model
+        # Load OpenRouter-specific environment variables with clear error messages
+        self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
+        if not self.api_key:
+            raise ValueError(
+                "OPENROUTER_API_KEY environment variable is required for OpenRouter client. "
+                "Please set it in your .env file or environment."
+            )
+
+        self.base_url = base_url or os.getenv("OPENROUTER_BASE_URL")
+        if not self.base_url:
+            raise ValueError(
+                "OPENROUTER_BASE_URL environment variable is required for OpenRouter client. "
+                "Please set it in your .env file or environment."
+            )
+
+        self.model = model or os.getenv("OPENROUTER_MODEL", "mistralai/devstral-2512:free")
         self.site_url = site_url or os.getenv("OPENROUTER_SITE_URL", "")
         self.site_name = site_name or os.getenv("OPENROUTER_SITE_NAME", "AI Native Book RAG")
 
@@ -87,6 +112,11 @@ class OpenRouterClient:
         Returns:
             Completion response object
         """
+        # For synchronous calls, we still want to respect concurrency limits
+        # by using a thread lock or similar mechanism, but for now we'll just
+        # log that this is a sync call that bypasses concurrency control
+        logger.warning("Sync LLM call made - bypassing concurrency control. Use async method when possible.")
+
         extra_headers = self.get_extra_headers()
 
         return self.sync.chat.completions.create(
@@ -108,15 +138,58 @@ class OpenRouterClient:
         Returns:
             Completion response object
         """
-        extra_headers = self.get_extra_headers()
+        # Acquire concurrency slot before making the API call
+        limiter = get_llm_concurrency_limiter()
+        async with limiter.context():
+            logger.debug(
+                f"Acquired concurrency slot for {self.model}. "
+                f"Current usage: {limiter.current_usage}/{limiter.max_concurrent}"
+            )
 
-        return await self.async_client.chat.completions.create(
+            # Use retry decorator for the actual API call
+            return await self._make_completion_with_retry(
+                messages, **kwargs
+            )
+
+    @retry_with_exponential_backoff(
+        max_retries=3,
+        initial_delay=1.0,
+        exponential_base=2.0,
+        jitter=True,
+        max_delay=30.0,
+        exceptions=(RateLimitError,)
+    )
+    async def _make_completion_with_retry(self, messages: list[dict], **kwargs) -> dict:
+        """
+        Make completion call with retry logic specifically for rate limit errors.
+
+        Args:
+            messages: List of message dicts with 'role' and 'content'
+            **kwargs: Additional arguments passed to chat.completions.create
+
+        Returns:
+            Completion response object
+
+        Raises:
+            RateLimitError: If rate limits continue after retries
+        """
+        extra_headers = self.get_extra_headers()
+        start_time = time.time()
+
+        logger.debug(f"Making LLM call to {self.model}")
+
+        response = await self.async_client.chat.completions.create(
             extra_headers=extra_headers,
             extra_body={},
             model=self.model,
             messages=messages,
             **kwargs
         )
+
+        duration = time.time() - start_time
+        logger.debug(f"LLM call completed in {duration:.2f}s")
+
+        return response
 
 
 # Global router instance
@@ -143,7 +216,7 @@ def create_completion(messages: list[dict], **kwargs):
 
     Example:
         ```python
-        from app.services.router import create_completion
+        from app.tools.router import create_completion
 
         response = create_completion(
             messages=[
@@ -164,7 +237,7 @@ async def acreate_completion(messages: list[dict], **kwargs):
 
     Example:
         ```python
-        from app.services.router import acreate_completion
+        from app.tools.router import acreate_completion
 
         response = await acreate_completion(
             messages=[

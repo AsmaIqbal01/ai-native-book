@@ -11,24 +11,26 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # Primary LLM Provider Configuration
-    llm_provider: str
+    # Defaults to Anthropic Claude Sonnet 4.5 (recommended for production RAG)
+    llm_provider: str = "anthropic"
     llm_api_key: str
-    llm_base_url: str
-    llm_model: str
+    llm_base_url: str = "https://api.anthropic.com/v1"
+    llm_model: str = "claude-sonnet-4-5-20250929"
 
-    # Fallback LLM Providers (optional)
-    llm_provider_fallback_1: str | None = None
+    # Fallback LLM Providers (optional - for high availability)
+    # Only used if API key is provided
+    llm_provider_fallback_1: str = "openai"
     llm_api_key_fallback_1: str | None = None
-    llm_base_url_fallback_1: str | None = None
-    llm_model_fallback_1: str | None = None
+    llm_base_url_fallback_1: str = "https://api.openai.com/v1"
+    llm_model_fallback_1: str = "gpt-4o-mini"
 
-    llm_provider_fallback_2: str | None = None
+    llm_provider_fallback_2: str = "gemini"
     llm_api_key_fallback_2: str | None = None
-    llm_base_url_fallback_2: str | None = None
-    llm_model_fallback_2: str | None = None
+    llm_base_url_fallback_2: str = "https://generativelanguage.googleapis.com/v1beta/openai/"
+    llm_model_fallback_2: str = "gemini-2.0-flash-exp"
 
-    # OpenAI (for embeddings)
-    openai_api_key: str
+    # OpenAI (for embeddings - required unless using Cohere)
+    openai_api_key: str | None = None
 
     # Qdrant Vector Database
     qdrant_url: str
@@ -70,3 +72,4 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+

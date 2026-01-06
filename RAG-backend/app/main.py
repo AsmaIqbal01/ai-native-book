@@ -12,6 +12,7 @@ from app.api.embed import router as embed_router
 from app.api.query import router as query_router
 from app.api.chapters import router as chapters_router
 from app.config import settings
+from app.utils.provider_validator import validate_providers_at_startup
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -46,11 +47,35 @@ async def startup_event():
     print(f"[*] Starting RAG Backend in {settings.app_env} mode...")
     print(f"[*] Docs available at: http://localhost:8000/docs")
 
+    # Validate LLM provider configurations
+    print("[*] Validating LLM provider configurations...")
+    try:
+        is_valid, results = await validate_providers_at_startup()
+        if not is_valid:
+            print(f"[WARNING] Provider validation issues detected: {results['errors']}")
+        else:
+            print("[OK] All provider configurations are valid")
+    except Exception as e:
+        print(f"[ERROR] Failed to validate providers: {e}")
+
+    # Initialize Qdrant collection (gracefully handle failures)
+    print("[*] Initializing Qdrant vector database...")
+    try:
+        from app.retrieval.qdrant_client import initialize_collection
+        success = initialize_collection()
+        if not success:
+            print("[WARNING] Qdrant unavailable - app will start without vector search")
+            print("[INFO] Vector search features will be disabled until Qdrant is available")
+    except Exception as e:
+        print(f"[ERROR] Qdrant initialization failed: {e}")
+        print("[WARNING] App will continue without vector search capabilities")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Run on application shutdown."""
-    from app.db import neon_client, qdrant_client
+    from app.db import neon_client
+    from app.retrieval import qdrant_client
 
     print("[*] Shutting down RAG Backend...")
     await neon_client.close_pool()

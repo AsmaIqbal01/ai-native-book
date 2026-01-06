@@ -6,7 +6,7 @@ Handles semantic search with metadata filtering.
 
 from typing import Optional
 from qdrant_client.models import Filter, FieldCondition, MatchValue
-from app.db.qdrant_client import get_client
+from app.retrieval.qdrant_client import get_client
 
 
 class RetrieverService:
@@ -14,7 +14,7 @@ class RetrieverService:
 
     def __init__(self):
         self.client = get_client()
-        self.collection_name = "book_chunks"
+        self.collection_name = "documentation_chunks"
 
     async def search(
         self,

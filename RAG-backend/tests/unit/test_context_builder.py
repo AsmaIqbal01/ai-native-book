@@ -5,7 +5,7 @@ Tests context formatting for both normal_rag and selected_text_only modes.
 """
 
 import pytest
-from app.services.context_builder import build_context_normal_rag, build_context_selected_text
+from app.tools.context_builder import build_context_normal_rag, build_context_selected_text
 
 
 def test_build_context_normal_rag_with_single_chunk():
