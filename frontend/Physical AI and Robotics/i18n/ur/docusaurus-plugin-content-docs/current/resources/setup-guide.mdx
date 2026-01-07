@@ -1,0 +1,58 @@
+---
+id: setup-guide
+title: Setup Guide
+---
+
+# Setup Guide
+
+<!-- Add theory, examples, diagrams here -->
+
+## جائزہ
+
+This comprehensive setup guide will help you configure your development environment for the AI-Native Robotics textbook.
+
+## Platform Selection
+
+Choose your platform:
+
+1. **Ubuntu 22.04 LTS (Recommended)**: Native Linux installation
+2. **WSL2**: Windows Subsystem for Linux 2 on Windows 10/11
+3. **Docker**: Containerized environment for macOS or alternative setup
+
+## Installation Workflow
+
+### Step 1: Install ROS 2 Humble
+
+See [ROS2 Installation](ros2-installation.mdx)
+
+### Step 2: Install Gazebo Classic
+
+See [Gazebo Installation](gazebo-installation.mdx)
+
+### Step 3: Install Development Tools
+
+```bash
+sudo apt install -y python3-pip git
+pip3 install flake8
+```
+
+### Step 4: Clone Repository
+
+```bash
+git clone https://github.com/your-repo/ai-native-robotics.git
+cd ai-native-robotics
+```
+
+### Step 5: Verify Setup
+
+```bash
+# Verify ROS 2
+ros2 --version
+
+# Verify Gazebo
+gazebo --version
+```
+
+## اگلے مراحل
+
+Proceed to Chapter 1 to begin learning!

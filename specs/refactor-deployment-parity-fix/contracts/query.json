@@ -1,0 +1,226 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Query API",
+    "description": "Endpoint for semantic search of textbook content",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/query": {
+      "post": {
+        "summary": "Search for relevant chunks",
+        "description": "Embeds the question and retrieves top-k most relevant chunks from Qdrant",
+        "operationId": "queryChunks",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              },
+              "example": {
+                "question": "What is ROS2 and how does it differ from ROS1?",
+                "top_k": 5,
+                "chapter_filter": 3
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chunks retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                },
+                "example": {
+                  "chunks": [
+                    {
+                      "chunk_text": "ROS2 (Robot Operating System 2) is a set of software libraries and tools for building robot applications...",
+                      "chapter": 3,
+                      "section": "Introduction to ROS2",
+                      "page": 42,
+                      "score": 0.89
+                    },
+                    {
+                      "chunk_text": "Unlike ROS1, ROS2 uses DDS (Data Distribution Service) for communication...",
+                      "chapter": 3,
+                      "section": "ROS2 Architecture",
+                      "page": 45,
+                      "score": 0.82
+                    }
+                  ],
+                  "metadata": {
+                    "query_embedding_dim": 1536,
+                    "search_latency_ms": 234,
+                    "qdrant_hits": 15
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Validation error",
+                  "detail": "Question must be at least 3 characters",
+                  "status_code": 400
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Qdrant or embedding API unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Vector database unavailable",
+                  "detail": "Failed to connect to Qdrant",
+                  "status_code": 503
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Internal server error",
+                  "detail": "Unexpected error during query",
+                  "status_code": 500
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Query"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "QueryRequest": {
+        "type": "object",
+        "required": ["question"],
+        "properties": {
+          "question": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 1000,
+            "description": "User question"
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20,
+            "default": 5,
+            "description": "Number of chunks to retrieve (1-20)"
+          },
+          "chapter_filter": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "nullable": true,
+            "description": "Optional chapter filter (only search this chapter)"
+          }
+        }
+      },
+      "QueryResponse": {
+        "type": "object",
+        "required": ["chunks", "metadata"],
+        "properties": {
+          "chunks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChunkResult"
+            },
+            "description": "Retrieved chunks ranked by relevance"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/QueryMetadata"
+          }
+        }
+      },
+      "ChunkResult": {
+        "type": "object",
+        "required": ["chunk_text", "chapter", "section", "page", "score"],
+        "properties": {
+          "chunk_text": {
+            "type": "string",
+            "description": "Full text of the chunk"
+          },
+          "chapter": {
+            "type": "integer",
+            "description": "Chapter number"
+          },
+          "section": {
+            "type": "string",
+            "description": "Section name"
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number"
+          },
+          "score": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Similarity score (0.0 - 1.0, higher is better)"
+          }
+        }
+      },
+      "QueryMetadata": {
+        "type": "object",
+        "required": ["query_embedding_dim", "search_latency_ms", "qdrant_hits"],
+        "properties": {
+          "query_embedding_dim": {
+            "type": "integer",
+            "description": "Embedding vector dimensions used"
+          },
+          "search_latency_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Search latency in milliseconds"
+          },
+          "qdrant_hits": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of hits from Qdrant"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "detail", "status_code"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type/category"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Detailed error message"
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code"
+          }
+        }
+      }
+    }
+  }
+}

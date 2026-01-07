@@ -1,0 +1,9 @@
+{
+  "label": "8. Safety & Ethics",
+  "position": 8,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Safety constraints, ethical considerations, and responsible AI deployment."
+  }
+}

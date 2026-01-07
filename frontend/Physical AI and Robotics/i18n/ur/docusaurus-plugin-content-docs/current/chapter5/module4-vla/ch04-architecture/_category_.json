@@ -1,0 +1,9 @@
+{
+  "label": "4. VLA Architecture",
+  "position": 4,
+  "collapsed": true,
+  "link": {
+    "type": "generated-index",
+    "description": "Model architecture, integration patterns, and system design."
+  }
+}

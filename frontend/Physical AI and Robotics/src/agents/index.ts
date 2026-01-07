@@ -13,3 +13,9 @@ export {
   useThemeAgent,
   useUserAgent,
 } from './useUIAgent';
+
+// Translation system agents
+export { default as LanguageStateAgent } from './LanguageStateAgent';
+export { default as UITextMapperAgent } from './UITextMapperAgent';
+export { default as CacheAgent } from './CacheAgent';
+export { default as UrduTranslatorAgent } from './UrduTranslatorAgent';

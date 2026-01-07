@@ -1,19 +1,18 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import MDXContent from '@theme-original/MDXContent';
 import { useTranslation } from '../../contexts/TranslationContext';
-import TranslationService from '../../services/TranslationService';
+import { useLocation } from '@docusaurus/router';
+import CacheAgent from '../../agents/CacheAgent';
+import UrduTranslatorAgent from '../../agents/UrduTranslatorAgent';
 
 /**
- * MDXContent Wrapper - Translates all MDX page content
+ * MDXContent Wrapper - Runtime translation fallback
  *
- * This component intercepts Docusaurus MDX content rendering and
- * applies translations when the language is set to Urdu.
- *
- * Translation Strategy:
- * 1. Intercept text nodes in the React tree
- * 2. Look up translations in TranslationService cache
- * 3. Preserve code blocks, technical terms, and formatting
- * 4. Apply Urdu typography for translated content
+ * For pages without static Urdu versions, this provides:
+ * 1. Runtime translation using UrduTranslatorAgent
+ * 2. Persistent caching via CacheAgent (never retranslate)
+ * 3. Preservation of code blocks, links, and formatting
+ * 4. RTL layout and Urdu typography
  */
 
 interface MDXContentProps {
@@ -21,7 +20,7 @@ interface MDXContentProps {
 }
 
 /**
- * Recursively translate React children nodes
+ * Recursively translate React children nodes using UrduTranslatorAgent
  */
 function translateChildren(children: ReactNode, language: string): ReactNode {
   if (language === 'en') {
@@ -34,8 +33,8 @@ function translateChildren(children: ReactNode, language: string): ReactNode {
       const trimmed = child.trim();
       if (!trimmed) return child; // Preserve whitespace
 
-      // Get translation from service
-      const translated = TranslationService.getTranslation(trimmed, language as 'ur');
+      // Get translation using UrduTranslatorAgent
+      const translated = UrduTranslatorAgent.translateText(trimmed, language as 'ur');
       return translated;
     }
 
@@ -69,13 +68,34 @@ function translateChildren(children: ReactNode, language: string): ReactNode {
 
 export default function MDXContentWrapper(props: MDXContentProps): React.ReactElement {
   const { language } = useTranslation();
+  const location = useLocation();
   const [translatedContent, setTranslatedContent] = useState<ReactNode>(props.children);
 
   useEffect(() => {
-    // Apply translation when language changes
+    if (language === 'en') {
+      setTranslatedContent(props.children);
+      return;
+    }
+
+    // Generate unique page ID from pathname
+    const pageId = location.pathname.replace(/^\//, '').replace(/\/$/, '') || 'home';
+
+    // Check cache first
+    const cached = CacheAgent.get(pageId, 'ur');
+    if (cached) {
+      // Cache hit - use cached translation
+      setTranslatedContent(translateChildren(props.children, language));
+      return;
+    }
+
+    // Cache miss - translate and cache
     const translated = translateChildren(props.children, language);
     setTranslatedContent(translated);
-  }, [props.children, language]);
+
+    // Cache the translated content
+    // Note: We cache the page ID to mark this page as translated
+    CacheAgent.set(pageId, 'translated', 'ur');
+  }, [props.children, language, location.pathname]);
 
   return (
     <div

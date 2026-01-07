@@ -1,0 +1,25 @@
+{
+  "LOG": true,
+  "LOG_LEVEL": "info",
+  "API_TIMEOUT_MS": 600000,
+
+  "providers": [
+    {
+      "name": "openai",
+      "api_base_url": "https://openrouter.ai/api/v1",
+      "api_key_env": "OPENROUTER_API_KEY",
+      "models": [
+        "mistralai/mistral-7b-instruct"
+      ]
+    }
+  ],
+
+  "router": {
+    "default": "openai,mistralai/mistral-7b-instruct",
+    "background": "openai,mistralai/mistral-7b-instruct",
+    "think": "openai,mistralai/mistral-7b-instruct",
+    "longContext": "openai,mistralai/mistral-7b-instruct",
+    "webSearch": "openai,mistralai/mistral-7b-instruct",
+    "longContextThreshold": 60000
+  }
+}

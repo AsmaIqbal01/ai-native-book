@@ -1,0 +1,192 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Ingest API",
+    "description": "Endpoint for ingesting textbook content into the RAG system",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/ingest": {
+      "post": {
+        "summary": "Ingest document content",
+        "description": "Accepts document content, chunks it, generates embeddings, and stores in Qdrant vector database",
+        "operationId": "ingestDocument",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequest"
+              },
+              "example": {
+                "content": "# Chapter 3: ROS2 Fundamentals\n\nROS2 (Robot Operating System 2) is a set of software libraries and tools for building robot applications. It is the successor to ROS1 and addresses many of its limitations...",
+                "metadata": {
+                  "title": "AI-Native Robotics Chapter 3",
+                  "chapter": 3,
+                  "section": "Introduction to ROS2",
+                  "page": 42
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document ingested successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestResponse"
+                },
+                "example": {
+                  "status": "success",
+                  "doc_id": "550e8400-e29b-41d4-a716-446655440000",
+                  "chunks_created": 12,
+                  "embeddings_stored": 12
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Validation error",
+                  "detail": "Content must be at least 100 characters",
+                  "status_code": 400
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Qdrant or embedding API unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Vector database unavailable",
+                  "detail": "Failed to connect to Qdrant",
+                  "status_code": 503
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Internal server error",
+                  "detail": "Unexpected error during ingestion",
+                  "status_code": 500
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Ingestion"]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IngestRequest": {
+        "type": "object",
+        "required": ["content", "metadata"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 100,
+            "maxLength": 100000,
+            "description": "Document content (Markdown or plain text)"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/DocumentMetadata"
+          }
+        }
+      },
+      "DocumentMetadata": {
+        "type": "object",
+        "required": ["title", "chapter", "page"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Document title"
+          },
+          "chapter": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Chapter number (1-100)"
+          },
+          "section": {
+            "type": "string",
+            "maxLength": 200,
+            "default": "",
+            "description": "Section name (optional)"
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Starting page number"
+          }
+        }
+      },
+      "IngestResponse": {
+        "type": "object",
+        "required": ["status", "doc_id", "chunks_created", "embeddings_stored"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error"],
+            "description": "Status of the ingestion operation"
+          },
+          "doc_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique document identifier"
+          },
+          "chunks_created": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of chunks created from the document"
+          },
+          "embeddings_stored": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of embeddings stored in Qdrant"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "detail", "status_code"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type/category"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Detailed error message"
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useLocation } from '@docusaurus/router';
+import { useLocation, useHistory } from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 /**
@@ -210,6 +210,7 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
   // Get current Docusaurus locale and config
   const { i18n, siteConfig } = useDocusaurusContext();
   const location = useLocation();
+  const history = useHistory();
   const currentLocale = (i18n.currentLocale as Language) || 'en';
   const baseUrl = siteConfig.baseUrl;
 
@@ -242,9 +243,55 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
 
   const toggleLanguage = () => {
     const newLocale: Language = language === 'en' ? 'ur' : 'en';
+    const currentPath = location.pathname;
 
-    // Navigate to the new locale using Docusaurus routing
-    if (typeof window !== 'undefined') {
+    // Remove baseUrl to get the path relative to the site root
+    const pathWithoutBase = currentPath.replace(baseUrl, '/');
+
+    // Get the current path without locale prefix
+    let pathWithoutLocale = pathWithoutBase;
+    if (pathWithoutLocale.startsWith('/ur/')) {
+      pathWithoutLocale = pathWithoutLocale.replace(/^\/ur\//, '/');
+    } else if (pathWithoutLocale === '/ur' || pathWithoutLocale === '/ur/') {
+      pathWithoutLocale = '/';
+    }
+
+    // Normalize the path (remove trailing slash if not root)
+    if (pathWithoutLocale.length > 1 && pathWithoutLocale.endsWith('/')) {
+      pathWithoutLocale = pathWithoutLocale.slice(0, -1);
+    }
+
+    let targetPath: string;
+    if (newLocale === 'ur') {
+      // When switching to Urdu, add /ur/ prefix to the path
+      if (pathWithoutLocale === '/') {
+        targetPath = '/ur/';
+      } else {
+        targetPath = `/ur${pathWithoutLocale}`;
+      }
+    } else {
+      // When switching to English, the path remains as is
+      targetPath = pathWithoutLocale;
+    }
+
+    // Combine baseUrl with target path
+    const finalPath = baseUrl + targetPath.substring(1); // remove leading slash of target path to properly join with baseUrl
+
+    console.log('Translation navigation:', {
+      currentPath,
+      pathWithoutBase,
+      pathWithoutLocale,
+      newLocale,
+      targetPath,
+      finalPath
+    });
+
+    // Use browser navigation to properly trigger Docusaurus i18n routing
+    window.location.href = finalPath;
+  };
+
+  const setLanguage = (lang: Language) => {
+    if (lang !== language) {
       const currentPath = location.pathname;
 
       // Normalize baseUrl (ensure it starts and ends with /)
@@ -256,139 +303,53 @@ export const TranslationProvider: React.FC<TranslationProviderProps> = ({ childr
         pathWithoutBase = currentPath.substring(normalizedBaseUrl.length - 1);
       }
 
-      // IMPORTANT: Since we only have one Urdu page (introduction.mdx),
-      // always redirect to /ur/docs/introduction when switching to Urdu
-      if (newLocale === 'ur') {
-        const finalPath = normalizedBaseUrl.slice(0, -1) + '/ur/docs/introduction';
-        console.log('Translation navigation (to Urdu):', { currentPath, finalPath });
-        window.location.href = finalPath;
-        return;
-      }
+      // Build the target path based on the new locale
+      let targetPath: string;
 
-      // When switching from Urdu to English
-      if (newLocale === 'en') {
-        // Check if we're on the Urdu introduction page
-        const isUrIntro = pathWithoutBase === '/ur/docs/introduction' ||
-                          pathWithoutBase === '/ur/docs/introduction/';
-
-        if (isUrIntro) {
-          // Redirect to English introduction page
-          const finalPath = normalizedBaseUrl.slice(0, -1) + '/docs/introduction';
-          console.log('Translation navigation (Urdu intro to English intro):', { currentPath, finalPath });
-          window.location.href = finalPath;
-          return;
+      if (lang === 'ur') {
+        // When switching to Urdu, preserve the current doc path
+        if (pathWithoutBase.startsWith('/docs/')) {
+          // Replace /docs/ with /ur/docs/
+          targetPath = pathWithoutBase.replace(/^\/docs\//, '/ur/docs/');
+        } else if (pathWithoutBase === '/docs' || pathWithoutBase === '/') {
+          // From homepage or docs root, go to Urdu introduction
+          targetPath = '/ur/docs/introduction';
+        } else {
+          // Already has /ur prefix or other path - add /ur prefix
+          targetPath = pathWithoutBase.startsWith('/ur') ? pathWithoutBase : `/ur${pathWithoutBase}`;
         }
-
-        // For any other Urdu page, redirect to English homepage
-        if (pathWithoutBase.startsWith('/ur')) {
-          const finalPath = normalizedBaseUrl.slice(0, -1) + '/';
-          console.log('Translation navigation (Urdu to English homepage):', { currentPath, finalPath });
-          window.location.href = finalPath;
-          return;
-        }
-      }
-
-      // Fallback: Try to navigate to the equivalent page in the new locale
-      let newPathWithoutBase: string;
-      // Type assertion needed due to TypeScript control flow narrowing
-      if ((newLocale as Language) === 'ur') {
-        // Add /ur prefix
-        newPathWithoutBase = pathWithoutBase.startsWith('/ur/')
-          ? pathWithoutBase
-          : pathWithoutBase.startsWith('/ur')
-          ? pathWithoutBase
-          : `/ur${pathWithoutBase}`;
       } else {
-        // Remove /ur prefix
-        newPathWithoutBase = pathWithoutBase.replace(/^\/ur(\/|$)/, '/');
+        // When switching to English, preserve the current doc path
+        if (pathWithoutBase.startsWith('/ur/docs/')) {
+          // Replace /ur/docs/ with /docs/
+          targetPath = pathWithoutBase.replace(/^\/ur\/docs\//, '/docs/');
+        } else if (pathWithoutBase === '/ur/docs' || pathWithoutBase === '/ur/' || pathWithoutBase === '/ur') {
+          // From Urdu homepage or docs root, go to English introduction
+          targetPath = '/docs/introduction';
+        } else {
+          // Remove /ur prefix
+          targetPath = pathWithoutBase.replace(/^\/ur(\/|$)/, '/');
+        }
       }
 
       // Ensure path starts with /
-      if (!newPathWithoutBase.startsWith('/')) {
-        newPathWithoutBase = '/' + newPathWithoutBase;
+      if (!targetPath.startsWith('/')) {
+        targetPath = '/' + targetPath;
       }
 
-      // Combine baseUrl with new path
-      const finalPath = normalizedBaseUrl.slice(0, -1) + newPathWithoutBase;
+      // Combine baseUrl with target path
+      const finalPath = normalizedBaseUrl.slice(0, -1) + targetPath;
 
-      console.log('Translation navigation (fallback):', { currentPath, baseUrl, pathWithoutBase, newPathWithoutBase, finalPath });
-      window.location.href = finalPath;
-    }
-  };
+      console.log('Translation navigation:', {
+        currentPath,
+        pathWithoutBase,
+        newLocale: lang,
+        targetPath,
+        finalPath
+      });
 
-  const setLanguage = (lang: Language) => {
-    if (lang !== language) {
-      // Navigate to the new locale using Docusaurus routing
-      if (typeof window !== 'undefined') {
-        const currentPath = location.pathname;
-
-        // Normalize baseUrl (ensure it starts and ends with /)
-        const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-
-        // Remove baseUrl prefix to get the path relative to the site root
-        let pathWithoutBase = currentPath;
-        if (currentPath.startsWith(normalizedBaseUrl.slice(0, -1))) {
-          pathWithoutBase = currentPath.substring(normalizedBaseUrl.length - 1);
-        }
-
-        // IMPORTANT: Since we only have one Urdu page (introduction.mdx),
-        // always redirect to /ur/docs/introduction when switching to Urdu
-        if (lang === 'ur') {
-          const finalPath = normalizedBaseUrl.slice(0, -1) + '/ur/docs/introduction';
-          console.log('Translation navigation (to Urdu):', { currentPath, finalPath });
-          window.location.href = finalPath;
-          return;
-        }
-
-        // When switching from Urdu to English
-        if (lang === 'en') {
-          // Check if we're on the Urdu introduction page
-          const isUrIntro = pathWithoutBase === '/ur/docs/introduction' ||
-                            pathWithoutBase === '/ur/docs/introduction/';
-
-          if (isUrIntro) {
-            // Redirect to English introduction page
-            const finalPath = normalizedBaseUrl.slice(0, -1) + '/docs/introduction';
-            console.log('Translation navigation (Urdu intro to English intro):', { currentPath, finalPath });
-            window.location.href = finalPath;
-            return;
-          }
-
-          // For any other Urdu page, redirect to English homepage
-          if (pathWithoutBase.startsWith('/ur')) {
-            const finalPath = normalizedBaseUrl.slice(0, -1) + '/';
-            console.log('Translation navigation (Urdu to English homepage):', { currentPath, finalPath });
-            window.location.href = finalPath;
-            return;
-          }
-        }
-
-        // Fallback: Try to navigate to the equivalent page in the new locale
-        let newPathWithoutBase: string;
-        // Type assertion needed due to TypeScript control flow narrowing
-        if ((lang as Language) === 'ur') {
-          // Add /ur prefix
-          newPathWithoutBase = pathWithoutBase.startsWith('/ur/')
-            ? pathWithoutBase
-            : pathWithoutBase.startsWith('/ur')
-            ? pathWithoutBase
-            : `/ur${pathWithoutBase}`;
-        } else {
-          // Remove /ur prefix
-          newPathWithoutBase = pathWithoutBase.replace(/^\/ur(\/|$)/, '/');
-        }
-
-        // Ensure path starts with /
-        if (!newPathWithoutBase.startsWith('/')) {
-          newPathWithoutBase = '/' + newPathWithoutBase;
-        }
-
-        // Combine baseUrl with new path
-        const finalPath = normalizedBaseUrl.slice(0, -1) + newPathWithoutBase;
-
-        console.log('Translation navigation (fallback):', { currentPath, baseUrl, pathWithoutBase, newPathWithoutBase, finalPath });
-        window.location.href = finalPath;
-      }
+      // Use Docusaurus router for client-side navigation (no page reload)
+      history.push(finalPath);
     }
   };
 

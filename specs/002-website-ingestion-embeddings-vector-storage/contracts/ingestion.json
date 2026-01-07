@@ -1,0 +1,282 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Website Ingestion API",
+    "version": "1.0.0",
+    "description": "API for managing website crawling, content extraction, embedding generation, and vector storage operations"
+  },
+  "paths": {
+    "/api/v1/ingestion/jobs": {
+      "post": {
+        "summary": "Create a new ingestion job",
+        "description": "Start a new website crawling and embedding job with specified parameters",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestionJobRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ingestion job created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionJobResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          }
+        }
+      },
+      "get": {
+        "summary": "List ingestion jobs",
+        "description": "Get a list of all ingestion jobs with their status",
+        "responses": {
+          "200": {
+            "description": "List of ingestion jobs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IngestionJobResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ingestion/jobs/{jobId}": {
+      "get": {
+        "summary": "Get ingestion job status",
+        "description": "Get the current status and progress of a specific ingestion job",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ingestion job details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestionJobResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ingestion job not found"
+          }
+        }
+      }
+    },
+    "/api/v1/ingestion/reports": {
+      "get": {
+        "summary": "Get ingestion reports",
+        "description": "Get ingestion reports with statistics and health metrics",
+        "responses": {
+          "200": {
+            "description": "List of ingestion reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IngestionReport"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "IngestionJobRequest": {
+        "type": "object",
+        "required": ["urls"],
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "List of URLs to crawl and ingest"
+          },
+          "sitemap_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional sitemap URL to discover additional URLs"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "default": 512,
+            "minimum": 1,
+            "maximum": 2048,
+            "description": "Target size for content chunks in tokens"
+          },
+          "chunk_overlap": {
+            "type": "integer",
+            "default": 50,
+            "minimum": 0,
+            "maximum": 500,
+            "description": "Overlap between adjacent chunks in tokens"
+          },
+          "embedding_model": {
+            "type": "string",
+            "default": "embed-multilingual-v3.0",
+            "enum": ["embed-multilingual-v3.0", "embed-english-v3.0"],
+            "description": "Cohere embedding model to use"
+          },
+          "collection_name": {
+            "type": "string",
+            "default": "ingested_content",
+            "description": "Qdrant collection name for storing embeddings"
+          }
+        }
+      },
+      "IngestionJobResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the ingestion job"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name/description of the job"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "running", "completed", "failed"],
+            "description": "Current status of the job"
+          },
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of URLs to be processed"
+          },
+          "progress": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "Total number of URLs to process"
+              },
+              "completed": {
+                "type": "integer",
+                "description": "Number of URLs processed successfully"
+              },
+              "failed": {
+                "type": "integer",
+                "description": "Number of URLs that failed to process"
+              },
+              "percentage": {
+                "type": "number",
+                "format": "float",
+                "minimum": 0.0,
+                "maximum": 100.0,
+                "description": "Percentage of completion"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the job was created"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the job was completed (null if not completed)"
+          }
+        }
+      },
+      "IngestionReport": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the report"
+          },
+          "job_id": {
+            "type": "string",
+            "description": "Reference to the ingestion job"
+          },
+          "total_urls": {
+            "type": "integer",
+            "description": "Total URLs processed"
+          },
+          "successful_crawls": {
+            "type": "integer",
+            "description": "Number of successful crawls"
+          },
+          "failed_crawls": {
+            "type": "integer",
+            "description": "Number of failed crawls"
+          },
+          "total_chunks": {
+            "type": "integer",
+            "description": "Total chunks created"
+          },
+          "total_embeddings": {
+            "type": "integer",
+            "description": "Total embeddings generated"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When job started"
+          },
+          "end_time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When job ended"
+          },
+          "duration": {
+            "type": "number",
+            "format": "float",
+            "description": "Duration in seconds"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "List of errors encountered"
+          }
+        }
+      }
+    }
+  }
+}

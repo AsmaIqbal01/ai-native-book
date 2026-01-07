@@ -1,0 +1,1284 @@
+---
+id: navigation-path-planning
+title: Navigation and Path Planning with Isaac
+---
+
+# Navigation and Path Planning with Isaac
+
+## جائزہ
+
+Navigation and path planning represent critical capabilities for autonomous robots, enabling them to move safely and efficiently through complex environments. The Isaac navigation stack provides GPU-accelerated algorithms and tools for simultaneous localization and mapping (SLAM), global path planning, local path planning, and obstacle avoidance. Built on top of the ROS 2 navigation stack (Nav2), Isaac navigation adds hardware acceleration for computationally intensive tasks, enabling real-time performance on robotic platforms equipped with NVIDIA GPUs.
+
+The Isaac navigation system combines advanced perception capabilities from Isaac ROS with sophisticated planning algorithms to create robust navigation solutions. This integration allows robots to build accurate maps of their environment, localize themselves within those maps, plan collision-free paths to goals, and execute those paths while avoiding dynamic obstacles. The GPU acceleration is particularly valuable for tasks such as occupancy grid processing, trajectory optimization, and sensor fusion during navigation.
+
+## Key Concepts
+
+### Navigation System Architecture
+
+The Isaac navigation system consists of several interconnected components:
+
+**SLAM (Simultaneous Localization and Mapping)**: Creates maps of the environment while simultaneously determining the robot's position within that map. Isaac provides GPU-accelerated SLAM algorithms that can process sensor data in real-time.
+
+**Global Planner**: Computes a high-level path from the robot's current position to the goal, considering static obstacles and overall route efficiency.
+
+**Local Planner**: Generates velocity commands to follow the global path while avoiding dynamic obstacles and maintaining kinematic constraints.
+
+**Controller**: Translates velocity commands into actual actuator commands for the robot's drive system.
+
+**Costmap**: Maintains a representation of obstacles and free space around the robot, continuously updated with sensor data.
+
+### GPU-Accelerated Navigation Benefits
+
+Isaac navigation leverages NVIDIA's parallel computing architecture to enhance navigation performance:
+
+**Occupancy Grid Processing**: GPU acceleration of 2D and 3D occupancy grid operations, including sensor data integration, obstacle inflation, and path planning.
+
+**Path Planning Algorithms**: GPU-accelerated versions of A*, Dijkstra, and other path planning algorithms for faster global and local path computation.
+
+**Trajectory Optimization**: Hardware acceleration of trajectory optimization algorithms for smoother, more efficient robot motion.
+
+**Sensor Fusion**: Accelerated processing of multiple sensor streams for robust localization and obstacle detection.
+
+### Navigation Behaviors
+
+The Isaac navigation system supports various navigation behaviors:
+
+**Autonomous Mapping**: Building maps of unknown environments during exploration
+
+**Goal Navigation**: Moving from current location to specified goals
+
+**Patrol Patterns**: Following predefined routes for security or monitoring
+
+**Reactive Avoidance**: Dynamic obstacle avoidance during navigation
+
+**Multi-floor Navigation**: Navigation across multiple floors with elevator handling
+
+## Isaac Navigation Components
+
+### Isaac SLAM Integration
+
+Isaac provides enhanced SLAM capabilities through its Visual SLAM packages that integrate with the navigation system:
+
+```python
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Image, Imu
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from tf2_ros import TransformBroadcaster
+import tf2_ros
+import tf2_geometry_msgs
+import numpy as np
+
+class IsaacSLAMIntegration(Node):
+    def __init__(self):
+        super().__init__('isaac_slam_integration')
+        
+        # SLAM subscribers
+        self.image_subscription = self.create_subscription(
+            Image,
+            '/camera/image_rect_color',
+            self.image_callback,
+            10
+        )
+        
+        self.imu_subscription = self.create_subscription(
+            Imu,
+            '/imu/data',
+            self.imu_callback,
+            10
+        )
+        
+        # SLAM publisher for pose estimates
+        self.pose_publisher = self.create_publisher(
+            PoseWithCovarianceStamped,
+            '/visual_slam/pose',
+            10
+        )
+        
+        # TF broadcaster for SLAM transforms
+        self.tf_broadcaster = TransformBroadcaster(self)
+        
+        # Initialize SLAM variables
+        self.camera_pose = np.eye(4)  # 4x4 transformation matrix
+        self.odom_pose = np.eye(4)    # Odometry-based pose
+        self.slam_initialized = False
+        
+        # Start SLAM initialization timer
+        self.timer = self.create_timer(0.1, self.publish_slam_pose)
+    
+    def image_callback(self, msg):
+        # Isaac ROS Visual SLAM processes the image internally
+        # This node interfaces with the Isaac SLAM system
+        self.process_visual_features(msg)
+    
+    def imu_callback(self, msg):
+        # Use IMU data for better SLAM initialization and accuracy
+        if not self.slam_initialized:
+            self.initialize_slam_with_imu(msg)
+    
+    def process_visual_features(self, image_msg):
+        # Interface with Isaac Visual SLAM for feature extraction
+        # This is handled by Isaac ROS packages
+        pass
+    
+    def initialize_slam_with_imu(self, imu_msg):
+        # Initialize SLAM using IMU data for orientation
+        # This helps with initial pose estimation
+        pass
+    
+    def publish_slam_pose(self):
+        # Publish SLAM pose for navigation system
+        if self.slam_initialized:
+            pose_msg = PoseWithCovarianceStamped()
+            pose_msg.header.stamp = self.get_clock().now().to_msg()
+            pose_msg.header.frame_id = 'map'
+            
+            # Set pose from SLAM results
+            # (Actual SLAM pose would come from Isaac Visual SLAM)
+            
+            self.pose_publisher.publish(pose_msg)
+            
+            # Broadcast TF transform
+            self.broadcast_transform()
+    
+    def broadcast_transform(self):
+        # Broadcast the transform from map to robot base
+        pass
+```
+
+### Global Path Planning
+
+Isaac integration with Nav2 global planners includes GPU acceleration for path planning algorithms:
+
+```python
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Path
+from geometry_msgs.msg import PoseStamped
+from visualization_msgs.msg import Marker, MarkerArray
+import numpy as np
+
+class IsaacGlobalPlanner(Node):
+    def __init__(self):
+        super().__init__('isaac_global_planner')
+        
+        # Subscribers
+        self.start_subscription = self.create_subscription(
+            PoseStamped,
+            '/initialpose',
+            self.start_callback,
+            10
+        )
+        
+        self.goal_subscription = self.create_subscription(
+            PoseStamped,
+            '/goal_pose',
+            self.goal_callback,
+            10
+        )
+        
+        # Publishers
+        self.path_publisher = self.create_publisher(
+            Path,
+            '/global_plan',
+            10
+        )
+        
+        self.path_marker_publisher = self.create_publisher(
+            MarkerArray,
+            '/global_plan_markers',
+            10
+        )
+        
+        # Initialize planning variables
+        self.start_pose = None
+        self.goal_pose = None
+        self.map_resolution = 0.05  # meters per cell
+        self.planning_frequency = 1.0  # Hz
+        
+        # Planning timer
+        self.planning_timer = self.create_timer(
+            1.0 / self.planning_frequency,
+            self.plan_path
+        )
+    
+    def start_callback(self, msg):
+        # Set start pose for planning
+        self.start_pose = msg.pose
+        self.get_logger().info(f'Start pose set: ({msg.pose.position.x}, {msg.pose.position.y})')
+    
+    def goal_callback(self, msg):
+        # Set goal pose and trigger planning
+        self.goal_pose = msg.pose
+        self.get_logger().info(f'Goal pose set: ({msg.pose.position.x}, {msg.pose.position.y})')
+        
+        # Plan path immediately
+        self.plan_path()
+    
+    def plan_path(self):
+        # This would interface with Isaac-accelerated path planning
+        if self.start_pose and self.goal_pose:
+            # In Isaac navigation, path planning would leverage GPU acceleration
+            path = self.compute_gpu_accelerated_path()
+            
+            if path:
+                self.publish_path(path)
+                self.publish_path_markers(path)
+    
+    def compute_gpu_accelerated_path(self):
+        # Simulate Isaac-accelerated path planning
+        # In reality, this would interface with Isaac's GPU-accelerated planners
+        if self.start_pose and self.goal_pose:
+            # Example: Simple straight-line path (normally would be planned)
+            path = Path()
+            path.header.stamp = self.get_clock().now().to_msg()
+            path.header.frame_id = 'map'
+            
+            # For Isaac, this would use GPU-accelerated A* or Dijkstra
+            # with occupancy grid data from Isaac SLAM
+            return path
+        return None
+    
+    def publish_path(self, path):
+        # Publish the computed path
+        self.path_publisher.publish(path)
+    
+    def publish_path_markers(self, path):
+        # Publish visualization markers for the path
+        marker_array = MarkerArray()
+        
+        for i, pose in enumerate(path.poses):
+            marker = Marker()
+            marker.header.frame_id = 'map'
+            marker.header.stamp = self.get_clock().now().to_msg()
+            marker.ns = 'global_plan'
+            marker.id = i
+            marker.type = Marker.SPHERE
+            marker.action = Marker.ADD
+            
+            marker.pose = pose
+            marker.scale.x = 0.1
+            marker.scale.y = 0.1
+            marker.scale.z = 0.1
+            marker.color.r = 1.0
+            marker.color.g = 0.0
+            marker.color.b = 0.0
+            marker.color.a = 1.0
+            
+            marker_array.markers.append(marker)
+        
+        self.path_marker_publisher.publish(marker_array)
+```
+
+### Local Path Planning and Control
+
+Isaac provides GPU-accelerated local planning for dynamic obstacle avoidance:
+
+```python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, PoseStamped
+from sensor_msgs.msg import LaserScan, PointCloud2
+from nav_msgs.msg import Path, OccupancyGrid
+from visualization_msgs.msg import Marker
+import numpy as np
+import math
+
+class IsaacLocalPlanner(Node):
+    def __init__(self):
+        super().__init__('isaac_local_planner')
+        
+        # Subscribers
+        self.global_path_subscription = self.create_subscription(
+            Path,
+            '/global_plan',
+            self.global_path_callback,
+            10
+        )
+        
+        self.laser_subscription = self.create_subscription(
+            LaserScan,
+            '/scan',
+            self.laser_callback,
+            10
+        )
+        
+        self.odom_subscription = self.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
+            10
+        )
+        
+        # Publishers
+        self.cmd_vel_publisher = self.create_publisher(
+            Twist,
+            '/cmd_vel',
+            10
+        )
+        
+        self.local_plan_publisher = self.create_publisher(
+            Path,
+            '/local_plan',
+            10
+        )
+        
+        # Initialize control parameters
+        self.global_path = None
+        self.current_pose = None
+        self.current_velocity = None
+        self.safe_to_move = True
+        
+        # Control loop timer
+        self.control_timer = self.create_timer(0.1, self.control_loop)  # 10Hz
+        
+        # Isaac-specific parameters for GPU-accelerated local planning
+        self.max_linear_speed = 0.5  # m/s
+        self.max_angular_speed = 1.0  # rad/s
+        self.min_distance_to_obstacle = 0.5  # meters
+        self.lookahead_distance = 1.0  # meters
+    
+    def global_path_callback(self, msg):
+        # Store the global path for local planning
+        self.global_path = msg.poses
+        self.get_logger().info(f'Received global path with {len(msg.poses)} waypoints')
+    
+    def laser_callback(self, msg):
+        # Process laser scan for obstacle detection
+        # Isaac's obstacle detection uses GPU acceleration
+        self.check_for_obstacles(msg)
+    
+    def odom_callback(self, msg):
+        # Update current pose and velocity
+        self.current_pose = msg.pose.pose
+        self.current_velocity = msg.twist.twist
+    
+    def control_loop(self):
+        # Main control loop for Isaac local planning
+        if self.current_pose and self.global_path and self.safe_to_move:
+            # Compute local plan using Isaac's GPU-accelerated algorithms
+            cmd_vel = self.compute_local_control()
+            if cmd_vel:
+                self.cmd_vel_publisher.publish(cmd_vel)
+    
+    def check_for_obstacles(self, scan_msg):
+        # Isaac's obstacle detection with GPU acceleration
+        # Check if there are obstacles in the robot's path
+        min_distance = min([r for r in scan_msg.ranges if not math.isnan(r)])
+        
+        if min_distance < self.min_distance_to_obstacle:
+            self.safe_to_move = False
+            self.get_logger().warn(f'Obstacle detected at {min_distance:.2f}m')
+        else:
+            self.safe_to_move = True
+    
+    def compute_local_control(self):
+        # Compute velocity command using Isaac's local planning
+        cmd_vel = Twist()
+        
+        if self.global_path:
+            # Find next waypoint in global path
+            next_waypoint = self.get_next_waypoint()
+            
+            if next_waypoint:
+                # Calculate direction to waypoint
+                dx = next_waypoint.pose.position.x - self.current_pose.position.x
+                dy = next_waypoint.pose.position.y - self.current_pose.position.y
+                distance = math.sqrt(dx*dx + dy*dy)
+                
+                if distance > 0.1:  # If we're not close to waypoint
+                    # Calculate angle to waypoint
+                    angle_to_waypoint = math.atan2(dy, dx)
+                    current_yaw = self.get_yaw_from_quaternion(self.current_pose.orientation)
+                    
+                    # Calculate angular error
+                    angle_error = self.normalize_angle(angle_to_waypoint - current_yaw)
+                    
+                    # Set velocities
+                    cmd_vel.linear.x = min(self.max_linear_speed * distance, self.max_linear_speed)
+                    cmd_vel.angular.z = self.max_angular_speed * angle_error
+                    
+                    # Isaac's GPU acceleration would optimize this trajectory
+                    # to avoid obstacles while following the path
+                else:
+                    # We've reached the waypoint, stop
+                    cmd_vel.linear.x = 0.0
+                    cmd_vel.angular.z = 0.0
+        
+        return cmd_vel
+    
+    def get_next_waypoint(self):
+        # Find the next waypoint along the global path
+        if not self.current_pose or not self.global_path:
+            return None
+        
+        for pose_stamped in self.global_path:
+            # Calculate distance to waypoint
+            dx = pose_stamped.pose.position.x - self.current_pose.position.x
+            dy = pose_stamped.pose.position.y - self.current_pose.position.y
+            distance = math.sqrt(dx*dx + dy*dy)
+            
+            if distance > self.lookahead_distance:
+                return pose_stamped
+        
+        # If no waypoint is far enough, return the last one
+        if self.global_path:
+            return self.global_path[-1]
+        
+        return None
+    
+    def get_yaw_from_quaternion(self, quaternion):
+        # Extract yaw from quaternion
+        import tf_transformations
+        euler = tf_transformations.euler_from_quaternion([
+            quaternion.x,
+            quaternion.y,
+            quaternion.z,
+            quaternion.w
+        ])
+        return euler[2]  # yaw is the third element
+    
+    def normalize_angle(self, angle):
+        # Normalize angle to range [-pi, pi]
+        while angle > math.pi:
+            angle -= 2 * math.pi
+        while angle < -math.pi:
+            angle += 2 * math.pi
+        return angle
+```
+
+## Isaac Navigation Configuration
+
+### Costmap Configuration
+
+Isaac navigation uses GPU-accelerated costmaps for obstacle representation and path planning:
+
+```yaml
+# costmap_params.yaml
+global_costmap:
+  global_frame: map
+  robot_base_frame: base_link
+  update_frequency: 10.0
+  publish_frequency: 5.0
+  static_map: true
+  rolling_window: false
+  resolution: 0.05  # meters per cell (Isaac can handle fine resolution with GPU)
+  
+  plugins:
+    - {name: static_layer, type: "nav2_costmap_2d::StaticLayer"}
+    - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "nav2_costmap_2d::InflationLayer"}
+  
+  static_layer:
+    map_topic: /map
+    transform_tolerance: 0.5
+    
+  obstacle_layer:
+    enabled: true
+    observation_sources: scan
+    scan:
+      topic: /scan
+      sensor_frame: laser_frame
+      observation_persistence: 0.0
+      max_obstacle_height: 2.0
+      min_obstacle_height: 0.0
+      obstacle_range: 3.0
+      raytrace_range: 4.0
+      inf_is_valid: true
+      clearing: true
+      marking: true
+      data_type: "LaserScan"
+  
+  inflation_layer:
+    enabled: true
+    cost_scaling_factor: 5.0
+    inflation_radius: 1.0
+    
+    # Isaac-specific GPU-optimized parameters
+    use_gpu_inflation: true
+    gpu_thread_pool_size: 4
+
+local_costmap:
+  global_frame: odom
+  robot_base_frame: base_link
+  update_frequency: 10.0
+  publish_frequency: 5.0
+  static_map: false
+  rolling_window: true
+  width: 5.0
+  height: 5.0
+  resolution: 0.05  # Isaac GPU acceleration allows for higher resolution
+  
+  plugins:
+    - {name: obstacle_layer, type: "nav2_costmap_2d::ObstacleLayer"}
+    - {name: inflation_layer, type: "nav2_costmap_2d::InflationLayer"}
+  
+  obstacle_layer:
+    enabled: true
+    observation_sources: scan
+    scan:
+      topic: /scan
+      sensor_frame: laser_frame
+      observation_persistence: 0.0
+      max_obstacle_height: 2.0
+      min_obstacle_height: 0.0
+      obstacle_range: 3.0
+      raytrace_range: 4.0
+      inf_is_valid: true
+      clearing: true
+      marking: true
+      data_type: "LaserScan"
+  
+  inflation_layer:
+    enabled: true
+    cost_scaling_factor: 3.0
+    inflation_radius: 0.55
+    
+    # Isaac-specific GPU-optimized parameters
+    use_gpu_inflation: true
+    gpu_thread_pool_size: 4
+```
+
+### Planner Server Configuration
+
+```yaml
+# planner_server_params.yaml
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    use_gpu_planning: true  # Enable Isaac GPU acceleration
+    gpu_memory_fraction: 0.8  # Fraction of GPU memory to use
+    
+    # Global planner configuration
+    NavfnROS:
+      tolerance: 0.5
+      use_astar: false
+      allow_unknown: true
+      
+    # Isaac-specific global planners
+    IsaacAStarPlanner:
+      type: "isaac_nav2_plugins::IsaacAStarPlanner"
+      resolution: 0.05
+      max_iterations: 10000
+      use_gpu_acceleration: true
+    
+    # Local planner configuration (for Isaac)
+    IsaacTrajectoryPlanner:
+      type: "isaac_nav2_plugins::IsaacTrajectoryPlanner"
+      min_vel_x: 0.0
+      max_vel_x: 0.5
+      min_vel_y: -0.5
+      max_vel_y: 0.5
+      max_vel_theta: 1.0
+      min_in_place_vel_theta: 0.4
+      acc_lim_x: 2.5
+      acc_lim_theta: 3.2
+      xy_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.15
+      sim_time: 1.7
+      vx_samples: 7
+      vy_samples: 0
+      vtheta_samples: 20
+      path_distance_bias: 32.0
+      goal_distance_bias: 24.0
+      occdist_scale: 0.02
+      forward_point_distance: 0.325
+      stop_time_buffer: 0.2
+      scaling_speed: 0.25
+      max_scaling_factor: 0.2
+      use_gpu_optimization: true
+```
+
+## Isaac Navigation Launch Files
+
+### Complete Isaac Navigation Stack
+
+```python
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.substitutions import FindPackageShare
+
+def generate_launch_description():
+    # Launch configurations
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    autostart = LaunchConfiguration('autostart', default='true')
+    use_composition = LaunchConfiguration('use_composition', default='false')
+    use_respawn = LaunchConfiguration('use_respawn', default='false')
+    
+    # Isaac-specific configurations
+    use_isaac_slam = LaunchConfiguration('use_isaac_slam', default='true')
+    use_gpu_planning = LaunchConfiguration('use_gpu_planning', default='true')
+    
+    # Declare launch arguments
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='false',
+        description='Use simulation time if true'
+    )
+    
+    declare_autostart_cmd = DeclareLaunchArgument(
+        'autostart', 
+        default_value='true',
+        description='Automatically start the nav2 stack'
+    )
+    
+    declare_use_composition_cmd = DeclareLaunchArgument(
+        'use_composition', 
+        default_value='false',
+        description='Whether to use composed bringup'
+    )
+    
+    declare_use_respawn_cmd = DeclareLaunchArgument(
+        'use_respawn', 
+        default_value='false',
+        description='Whether to respawn if a node crashes'
+    )
+    
+    declare_use_isaac_slam_cmd = DeclareLaunchArgument(
+        'use_isaac_slam',
+        default_value='true',
+        description='Use Isaac SLAM integration'
+    )
+    
+    declare_use_gpu_planning_cmd = DeclareLaunchArgument(
+        'use_gpu_planning',
+        default_value='true',
+        description='Enable GPU-accelerated planning'
+    )
+    
+    # Isaac SLAM integration (if enabled)
+    isaac_slam_group = GroupAction(
+        condition=IfCondition(use_isaac_slam),
+        actions=[
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([
+                    FindPackageShare('isaac_ros_visual_slam'),
+                    '/launch/visual_slam.launch.py'
+                ]),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'map_frame': 'map',
+                    'publish_map_odom_transform': 'true',
+                    'mode': 'slam'
+                }.items()
+            )
+        ]
+    )
+    
+    # Main navigation stack with Isaac optimizations
+    nav2_bringup_launch_dir = FindPackageShare('nav2_bringup')
+    
+    nav2_bringup_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            nav2_bringup_launch_dir,
+            '/launch/navigation_launch.py'
+        ]),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+            'autostart': autostart,
+            'use_composition': use_composition,
+            'use_respawn': use_respawn,
+            'params_file': PathJoinSubstitution([
+                FindPackageShare('my_robot_navigation'),
+                'config',
+                'isaac_nav_params.yaml'
+            ])
+        }.items()
+    )
+    
+    # Isaac-specific navigation nodes
+    isaac_perception_nodes = GroupAction(
+        actions=[
+            Node(
+                package='isaac_ros_apriltag',
+                executable='isaac_ros_apriltag',
+                name='apriltag',
+                parameters=[{
+                    'family': 'tag36h11',
+                    'size': 0.145,
+                    'max_hamming': 0,
+                    'quad_decimate': 2.0
+                }],
+                remappings=[
+                    ('image', '/camera/image_rect_color'),
+                    ('camera_info', '/camera/camera_info'),
+                    ('detections', '/apriltag_detections')
+                ]
+            ),
+            
+            Node(
+                package='isaac_ros_dnn_inference',
+                executable='dnn_inference',
+                name='dnn_inference',
+                parameters=[{
+                    'model_path': '/path/to/obstacle_detection.engine',
+                    'input_topic': '/camera/image_rect_color',
+                    'output_topic': '/dnn_detections'
+                }]
+            )
+        ]
+    )
+    
+    # Isaac navigation controllers
+    isaac_controllers = Node(
+        package='isaac_ros_navigation_controllers',
+        executable='isaac_simple_controller',
+        name='isaac_navigation_controller',
+        parameters=[{
+            'use_gpu_optimization': use_gpu_planning,
+            'max_linear_velocity': 0.5,
+            'max_angular_velocity': 1.0,
+            'gpu_thread_count': 4
+        }]
+    )
+    
+    # Create launch description
+    ld = LaunchDescription()
+    
+    # Add launch arguments
+    ld.add_action(declare_use_sim_time_cmd)
+    ld.add_action(declare_autostart_cmd)
+    ld.add_action(declare_use_composition_cmd)
+    ld.add_action(declare_use_respawn_cmd)
+    ld.add_action(declare_use_isaac_slam_cmd)
+    ld.add_action(declare_use_gpu_planning_cmd)
+    
+    # Add actions
+    ld.add_action(isaac_slam_group)
+    ld.add_action(nav2_bringup_cmd)
+    ld.add_action(isaac_perception_nodes)
+    ld.add_action(isaac_controllers)
+    
+    return ld
+```
+
+## Advanced Navigation Features
+
+### Multi-Robot Navigation
+
+Isaac supports multi-robot navigation with collision avoidance:
+
+```python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Odometry
+from visualization_msgs.msg import MarkerArray
+from tf2_ros import TransformListener, Buffer
+import numpy as np
+
+class IsaacMultiRobotNavigation(Node):
+    def __init__(self):
+        super().__init__('isaac_multi_robot_navigation')
+        
+        # Robot identification
+        self.robot_namespace = self.get_namespace()
+        self.robot_name = self.get_parameter_or('robot_name', 'robot_0').value
+        
+        # Robot tracking
+        self.other_robots = {}
+        self.robot_subscribers = []
+        
+        # Initialize for multiple robots
+        self.initialize_robot_tracking()
+        
+        # Navigation with collision avoidance
+        self.collision_avoidance_threshold = 1.0  # meters
+        self.navigation_safety_margin = 0.5  # meters
+    
+    def initialize_robot_tracking(self):
+        # Subscribe to odometry of other robots in the fleet
+        # This could be done through a shared TF tree or direct topic access
+        other_robots = ['robot_1', 'robot_2', 'robot_3']  # Example robot names
+        
+        for robot_name in other_robots:
+            if robot_name != self.robot_name:
+                # Subscribe to other robot's odometry
+                subscription = self.create_subscription(
+                    Odometry,
+                    f'/{robot_name}/odom',
+                    lambda msg, rn=robot_name: self.robot_odom_callback(msg, rn),
+                    10
+                )
+                self.robot_subscribers.append(subscription)
+    
+    def robot_odom_callback(self, msg, robot_name):
+        """Track position of other robots for collision avoidance"""
+        self.other_robots[robot_name] = {
+            'x': msg.pose.pose.position.x,
+            'y': msg.pose.pose.position.y,
+            'theta': self.get_yaw_from_quaternion(msg.pose.pose.orientation),
+            'timestamp': msg.header.stamp
+        }
+    
+    def check_collision_risk(self, target_pose):
+        """Check if navigation to target pose conflicts with other robots"""
+        current_time = self.get_clock().now().seconds_nanoseconds()
+        
+        for robot_name, robot_info in self.other_robots.items():
+            # Calculate distance to other robot
+            dx = target_pose.position.x - robot_info['x']
+            dy = target_pose.position.y - robot_info['y']
+            distance = np.sqrt(dx*dx + dy*dy)
+            
+            if distance < self.collision_avoidance_threshold:
+                # Potential collision - need to replan or wait
+                self.get_logger().warn(
+                    f'Collision risk with {robot_name} at distance {distance:.2f}m'
+                )
+                return True
+        
+        return False
+    
+    def plan_safe_path(self, goal_pose):
+        """Plan path considering positions of other robots"""
+        # Isaac's GPU-accelerated multi-robot path planning
+        # would consider other robot positions as dynamic obstacles
+        
+        # For now, implement basic collision checking
+        if not self.check_collision_risk(goal_pose):
+            # Plan path normally
+            return self.compute_path_to_goal(goal_pose)
+        else:
+            # Wait or find alternative route
+            self.get_logger().info('Adjusting path to avoid collision with other robots')
+            return self.compute_safe_path_around_robots(goal_pose)
+    
+    def compute_safe_path_around_robots(self, goal_pose):
+        """Compute path that avoids other robots"""
+        # In Isaac, this would use GPU-accelerated multi-agent path planning
+        # For this example, we'll simulate finding a safe path
+        return None
+```
+
+### Adaptive Navigation Parameters
+
+Isaac navigation can adapt parameters based on environmental conditions:
+
+```python
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan, Image
+from geometry_msgs.msg import Twist
+import numpy as np
+
+class IsaacAdaptiveNavigation(Node):
+    def __init__(self):
+        super().__init__('isaac_adaptive_navigation')
+        
+        # Subscribe to environment sensors
+        self.laser_subscription = self.create_subscription(
+            LaserScan,
+            '/scan',
+            self.laser_callback,
+            10
+        )
+        
+        self.camera_subscription = self.create_subscription(
+            Image,
+            '/camera/image_rect_color',
+            self.camera_callback,
+            10
+        )
+        
+        # Initialize navigation parameters
+        self.current_mode = 'normal'  # normal, cautious, exploration
+        self.dynamic_params = {
+            'max_linear_speed': 0.5,
+            'max_angular_speed': 1.0,
+            'min_obstacle_distance': 0.5,
+            'inflation_radius': 0.55,
+            'path_tolerance': 0.25
+        }
+        
+        # Environmental assessment timer
+        self.assessment_timer = self.create_timer(1.0, self.assess_environment)
+    
+    def laser_callback(self, msg):
+        """Analyze laser scan for environmental assessment"""
+        # Analyze obstacle density and distribution
+        valid_ranges = [r for r in msg.ranges if 0.1 < r < 10.0]
+        
+        if not valid_ranges:
+            return
+            
+        # Calculate obstacle density in different directions
+        front_density = self.calculate_front_obstacle_density(msg)
+        side_density = self.calculate_side_obstacle_density(msg)
+        
+        # Update navigation strategy based on density
+        self.update_navigation_strategy(front_density, side_density)
+    
+    def camera_callback(self, msg):
+        """Analyze camera image for environmental features"""
+        # Isaac's DNN could analyze image for:
+        # - Human detection
+        # - Clutter level assessment
+        # - Passageway width estimation
+        # - Surface type classification
+        
+        # For this example, we'll just simulate the analysis
+        pass
+    
+    def calculate_front_obstacle_density(self, scan_msg):
+        """Calculate obstacle density in front of robot"""
+        # Analyze central portion of laser scan
+        central_indices = slice(len(scan_msg.ranges)//3, 2*len(scan_msg.ranges)//3)
+        central_ranges = scan_msg.ranges[central_indices]
+        
+        # Count obstacles within certain distance
+        obstacles = [r for r in central_ranges if 0.1 < r < 2.0]
+        density = len(obstacles) / len(central_ranges) if central_ranges else 0
+        
+        return density
+    
+    def calculate_side_obstacle_density(self, scan_msg):
+        """Calculate obstacle density on sides of robot"""
+        # Analyze left and right portions of laser scan
+        left_ranges = scan_msg.ranges[:len(scan_msg.ranges)//6] + scan_msg.ranges[5*len(scan_msg.ranges)//6:]
+        close_obstacles = [r for r in left_ranges if 0.1 < r < 1.0]
+        
+        density = len(close_obstacles) / len(left_ranges) if left_ranges else 0
+        return density
+    
+    def update_navigation_strategy(self, front_density, side_density):
+        """Update navigation parameters based on environment"""
+        # Determine navigation mode based on obstacle density
+        if front_density > 0.3 or side_density > 0.4:
+            # Dense obstacle environment - be cautious
+            new_mode = 'cautious'
+            speed_factor = 0.5
+            safety_margin = 0.8
+        elif front_density < 0.1 and side_density < 0.1:
+            # Open environment - can navigate faster
+            new_mode = 'fast'
+            speed_factor = 1.0
+            safety_margin = 0.4
+        else:
+            # Normal environment
+            new_mode = 'normal'
+            speed_factor = 0.7
+            safety_margin = 0.55
+        
+        if new_mode != self.current_mode:
+            self.get_logger().info(f'Switching to {new_mode} navigation mode')
+            self.current_mode = new_mode
+        
+        # Update dynamic parameters
+        self.dynamic_params['max_linear_speed'] = 0.5 * speed_factor
+        self.dynamic_params['min_obstacle_distance'] = safety_margin
+        self.dynamic_params['inflation_radius'] = min(1.0, safety_margin + 0.1)
+    
+    def assess_environment(self):
+        """Periodically assess environment and adapt parameters"""
+        # This would interface with Isaac's GPU-accelerated environmental analysis
+        # to determine optimal navigation strategies
+        
+        self.get_logger().debug(f'Environment mode: {self.current_mode}')
+        self.get_logger().debug(f'Current parameters: {self.dynamic_params}')
+```
+
+## Performance Optimization
+
+### GPU-Accelerated Path Planning
+
+```python
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
+from visualization_msgs.msg import Marker
+import numpy as np
+import cupy as cp  # CUDA Python for GPU acceleration
+
+class IsaacGPUPathPlanner(Node):
+    def __init__(self):
+        super().__init__('isaac_gpu_path_planner')
+        
+        # Initialize GPU memory structures
+        self.occupancy_grid_gpu = None
+        self.path_points_gpu = None
+        self.temp_costs_gpu = None
+        
+        # Configure GPU parameters
+        self.grid_width = 2000  # Example large grid that benefits from GPU
+        self.grid_height = 2000
+        self.grid_resolution = 0.05  # meters per cell
+        
+        # Initialize GPU memory for path planning
+        self.initialize_gpu_memory()
+    
+    def initialize_gpu_memory(self):
+        """Initialize GPU memory for path planning operations"""
+        try:
+            # Allocate GPU memory for occupancy grid
+            self.occupancy_grid_gpu = cp.zeros((self.grid_height, self.grid_width), dtype=cp.uint8)
+            
+            # Allocate memory for temporary path planning costs
+            self.temp_costs_gpu = cp.full((self.grid_height, self.grid_width), cp.inf, dtype=cp.float32)
+            
+            # Allocate memory for path points
+            self.path_points_gpu = cp.zeros((1000, 2), dtype=cp.float32)  # Max 1000 waypoints
+            
+            self.get_logger().info('GPU memory initialized for path planning')
+            
+        except Exception as e:
+            self.get_logger().error(f'Failed to initialize GPU memory: {e}')
+    
+    def gpu_astar_planning(self, start, goal, occupancy_grid):
+        """GPU-accelerated A* path planning"""
+        # Copy occupancy grid to GPU
+        if self.occupancy_grid_gpu is not None:
+            cp.copyto(self.occupancy_grid_gpu, cp.asarray(occupancy_grid))
+            
+            # Convert start and goal to grid coordinates
+            start_grid = self.world_to_grid(start)
+            goal_grid = self.world_to_grid(goal)
+            
+            # Perform A* on GPU (simplified - real implementation would be more complex)
+            path = self.perform_gpu_astar(start_grid, goal_grid)
+            
+            return path
+        else:
+            # Fallback to CPU planning
+            return self.cpu_astar_planning(start, goal, occupancy_grid)
+    
+    def world_to_grid(self, world_pose):
+        """Convert world coordinates to grid coordinates"""
+        grid_x = int((world_pose.position.x - self.grid_origin_x) / self.grid_resolution)
+        grid_y = int((world_pose.position.y - self.grid_origin_y) / self.grid_resolution)
+        return (grid_x, grid_y)
+    
+    def perform_gpu_astar(self, start_grid, goal_grid):
+        """Perform GPU-accelerated A* algorithm"""
+        # This would implement a GPU-optimized A* algorithm
+        # using CUDA kernels for parallel processing
+        
+        # For this example, we'll simulate the GPU processing
+        path = []
+        
+        # GPU-optimized path planning would go here
+        # This is where Isaac's GPU acceleration provides significant benefits
+        # for large maps or complex planning scenarios
+        
+        return path
+    
+    def cpu_astar_planning(self, start, goal, occupancy_grid):
+        """CPU-based A* planning as fallback"""
+        # Implementation for CPU-based planning
+        self.get_logger().warn('Using CPU planning - GPU planning not available')
+        return []
+```
+
+## Integration with Isaac Perception
+
+### Perception-Planning Integration
+
+Isaac navigation tightly integrates with Isaac perception for enhanced obstacle detection and navigation safety:
+
+```python
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+from vision_msgs.msg import Detection2DArray
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import OccupancyGrid
+import numpy as np
+
+class PerceptionPlanningIntegration(Node):
+    def __init__(self):
+        super().__init__('perception_planning_integration')
+        
+        # Perception inputs
+        self.detection_subscription = self.create_subscription(
+            Detection2DArray,
+            '/dnn_detections',
+            self.detection_callback,
+            10
+        )
+        
+        self.laser_subscription = self.create_subscription(
+            LaserScan,
+            '/scan',
+            self.laser_callback,
+            10
+        )
+        
+        # Planning inputs
+        self.cmd_vel_subscription = self.create_subscription(
+            Twist,
+            '/cmd_vel',
+            self.cmd_vel_callback,
+            10
+        )
+        
+        # Publishers for integrated data
+        self.enhanced_costmap_publisher = self.create_publisher(
+            OccupancyGrid,
+            '/isaac/enhanced_costmap',
+            10
+        )
+        
+        # Initialize detection tracking
+        self.detection_history = []
+        self.dynamic_obstacle_tracks = {}
+        
+    def detection_callback(self, msg):
+        """Process object detections from Isaac perception"""
+        # Process each detection and update dynamic obstacle tracking
+        for detection in msg.detections:
+            if detection.results:
+                class_id = detection.results[0].hypothesis.class_id
+                confidence = detection.results[0].hypothesis.score
+                
+                if confidence > 0.7:  # High confidence detection
+                    self.process_high_confidence_detection(detection, class_id)
+    
+    def process_high_confidence_detection(self, detection, class_id):
+        """Process high-confidence detections for navigation"""
+        if class_id == "person" or class_id == "human":
+            # Track human movement for navigation safety
+            self.track_human_obstacle(detection)
+        elif class_id == "obstacle" or class_id == "object":
+            # Add to costmap as potential obstacle
+            self.add_detection_to_costmap(detection)
+        elif class_id == "traffic_sign":
+            # Process navigation-relevant signs
+            self.handle_traffic_sign(detection)
+    
+    def track_human_obstacle(self, detection):
+        """Track moving humans for dynamic navigation"""
+        # Get detection position and add to tracking
+        center_x = detection.bbox.center.x
+        center_y = detection.bbox.center.y
+        
+        # This would connect with Isaac's tracking algorithms
+        # to maintain consistent IDs for moving objects
+        human_id = self.assign_unique_id(detection)
+        
+        self.dynamic_obstacle_tracks[human_id] = {
+            'position': (center_x, center_y),
+            'timestamp': self.get_clock().now().to_msg(),
+            'type': 'person',
+            'velocity': self.estimate_velocity(human_id, (center_x, center_y))
+        }
+    
+    def add_detection_to_costmap(self, detection):
+        """Add detection to navigation costmap"""
+        # Convert detection to costmap coordinates and add as obstacle
+        # This integrates visual detections with laser-based costmap
+        pass
+    
+    def laser_callback(self, msg):
+        """Process laser data alongside perception results"""
+        # Combine laser range data with visual detections
+        # for more robust obstacle detection
+        pass
+    
+    def cmd_vel_callback(self, msg):
+        """Monitor navigation commands for safety checks"""
+        # Use perception data to validate navigation commands
+        # and ensure safe execution
+        if self.is_safe_navigation_command(msg):
+            # Command is safe, allow execution
+            pass
+        else:
+            # Modify or cancel dangerous commands
+            self.modify_unsafe_command(msg)
+    
+    def is_safe_navigation_command(self, cmd_vel):
+        """Check if navigation command is safe given perception data"""
+        # Check if commanded direction has obstacles
+        # using both laser and visual perception data
+        return True  # Simplified check
+    
+    def modify_unsafe_command(self, cmd_vel):
+        """Modify unsafe navigation commands based on perception"""
+        # Adjust commands to avoid detected obstacles
+        # This would use Isaac's GPU-accelerated collision avoidance
+        pass
+    
+    def assign_unique_id(self, detection):
+        """Assign unique ID for object tracking"""
+        # Implementation would use Isaac's tracking algorithms
+        return id(detection)
+    
+    def estimate_velocity(self, object_id, current_position):
+        """Estimate velocity of tracked object"""
+        # Use historical positions to estimate motion
+        return (0.0, 0.0)  # Simplified
+```
+
+## Diagrams
+
+### Isaac Navigation Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ISAAC NAVIGATION SYSTEM                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
+│  │   SENSORS   │    │  ISAAC      │    │  GPU        │         │
+│  │             │    │  PERCEPTION │    │  COMPUTE    │         │
+│  │ • LIDAR     │───▶│ • SLAM      │───▶│ • Occupancy │         │
+│  │ • Camera    │    │ • Object    │    │   Grid      │         │
+│  │ • IMU       │    │   Detection │    │ • Path Plan │         │
+│  │ • Other     │    │ • Tracking  │    │ • Collision │         │
+│  └─────────────┘    │ • Mapping   │    │   Avoidance │         │
+│                     └─────────────┘    └─────────────┘         │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │              NAVIGATION PLANNERS                        │   │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐   │   │
+│  │  │ Global      │ │ Local       │ │ Behavior Trees  │   │   │
+│  │  │ Planner     │ │ Planner     │ │ (Multi-Behavior)│   │   │
+│  │  │ (A*, Dijkstra│ │ (DWA, TEB)  │ │ (Isaac Apps)    │   │   │
+│  │  └─────────────┘ └─────────────┘ └─────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │               NAVIGATION OUTPUTS                        │   │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────┐   │   │
+│  │  │ Path Plan   │ │ Velocity    │ │ Safety Checks   │   │   │
+│  │  │ (Waypoints) │ │ Commands    │ │ (Perception)    │   │   │
+│  │  └─────────────┘ └─────────────┘ └─────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Multi-Sensor Fusion in Navigation
+
+```
+Laser Data (2D)    +    Camera Data (2D/3D)    +    IMU Data
+      │                        │                        │
+      ▼                        ▼                        ▼
+┌─────────────┐    ┌─────────────────────────┐    ┌─────────┐
+│ Occupancy   │    │ Object Detection &    │    │ Pose &  │
+│ Grid (Static│    │ Classification (Dynamic│    │ Velocity│
+│ Obstacles)  │    │ Obstacles)            │    │ Tracking│
+└─────────────┘    └─────────────────────────┘    └─────────┘
+         │                        │                        │
+         └────────────────────────┼────────────────────────┘
+                                  ▼
+                    ┌─────────────────────────┐
+                    │  INTEGRATED COSTMAP     │
+                    │  • Static Obstacles     │
+                    │  • Dynamic Obstacles    │
+                    │  • Human Trajectories   │
+                    │  • Safe Navigation Areas│
+                    └─────────────────────────┘
+                                  │
+                                  ▼
+                    ┌─────────────────────────┐
+                    │  GPU-ACCELERATED        │
+                    │  PATH PLANNING          │
+                    │  • Global A* (GPU)      │
+                    │  • Local DWA (GPU)      │
+                    │  • Collision Avoidance  │
+                    └─────────────────────────┘
