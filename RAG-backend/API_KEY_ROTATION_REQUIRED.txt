@@ -1,0 +1,29 @@
+================================================================================
+⚠️  IMMEDIATE ACTION REQUIRED - ROTATE API KEYS
+================================================================================
+
+Your .env file contains exposed API keys that must be rotated before deployment.
+
+AFFECTED KEYS:
+1. OpenRouter: sk-or-v1-... (check your .env file)
+2. OpenAI: sk-proj-... (check your .env file)
+3. Qdrant: eyJhbG... (check your .env file)
+
+ACTION STEPS:
+1. Visit each provider's dashboard
+2. Delete/revoke the old key
+3. Generate a new key
+4. Update your .env file with the new key
+5. Delete this file after completing the rotation
+
+PROVIDER URLS:
+- OpenRouter: https://openrouter.ai/keys
+- OpenAI: https://platform.openai.com/api-keys
+- Qdrant: [Your Qdrant Cloud Dashboard]
+
+WHY: These keys were found in your .env file during audit. While .env
+is properly excluded from git (not committed), rotate as a precaution.
+
+See SECURITY_GUIDE.md for detailed instructions.
+
+================================================================================

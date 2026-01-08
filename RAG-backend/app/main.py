@@ -11,6 +11,7 @@ from app.api.ingest import router as ingest_router
 from app.api.embed import router as embed_router
 from app.api.query import router as query_router
 from app.api.chapters import router as chapters_router
+from app.api.analytics import router as analytics_router
 from app.config import settings
 from app.utils.provider_validator import validate_providers_at_startup
 
@@ -39,6 +40,7 @@ app.include_router(ingest_router, tags=["Ingestion"])
 app.include_router(embed_router, tags=["Ingestion"])
 app.include_router(query_router, tags=["Query"])
 app.include_router(chapters_router, tags=["Metadata"])
+app.include_router(analytics_router, tags=["Analytics"])
 
 
 @app.on_event("startup")
